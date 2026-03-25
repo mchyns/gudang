@@ -43,8 +43,12 @@
                                         #{{ $order->id }}
                                         <div class="text-xs text-gray-400">{{ $order->created_at->format('d M H:i') }}</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="px-6 py-4 text-sm text-gray-500">
                                         {{ $order->user->name ?? 'User Hapus' }} <br>
+                                        @if(($order->user->role ?? null) === 'dapur')
+                                            <span class="block text-xs text-gray-600">HP: {{ $order->user->phone ?: '-' }}</span>
+                                            <span class="block text-xs text-gray-600">Alamat: {{ $order->user->address ?: '-' }}</span>
+                                        @endif
                                         <span class="text-xs italic">{{ $order->note }}</span>
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-500">

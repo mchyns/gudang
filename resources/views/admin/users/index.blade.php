@@ -33,11 +33,13 @@
 
 <div style="background:#fff;border:1px solid rgba(17,31,162,0.08);border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(17,31,162,0.06);">
 	<div style="overflow-x:auto;">
-		<table style="width:100%;border-collapse:collapse;min-width:760px;">
+		<table style="width:100%;border-collapse:collapse;min-width:1100px;">
 			<thead style="background:#f8f9ff;">
 				<tr>
 					<th style="text-align:left;padding:14px 16px;font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">Nama</th>
 					<th style="text-align:left;padding:14px 16px;font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">Email</th>
+					<th style="text-align:left;padding:14px 16px;font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">Nomor HP</th>
+					<th style="text-align:left;padding:14px 16px;font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">Alamat</th>
 					<th style="text-align:left;padding:14px 16px;font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">Role Saat Ini</th>
 					<th style="text-align:left;padding:14px 16px;font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">Ubah Role</th>
 					<th style="text-align:right;padding:14px 16px;font-size:0.72rem;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">Aksi</th>
@@ -51,6 +53,8 @@
 							<div style="font-size:0.78rem;color:#9ca3af;">ID: {{ $user->id }}</div>
 						</td>
 						<td style="padding:14px 16px;color:#374151;">{{ $user->email }}</td>
+						<td style="padding:14px 16px;color:#374151;white-space:nowrap;">{{ $user->phone ?: '-' }}</td>
+						<td style="padding:14px 16px;color:#374151;max-width:280px;">{{ $user->address ?: '-' }}</td>
 						<td style="padding:14px 16px;">
 							@php
 								$roleClass = in_array($user->role, ['superadmin', 'admin', 'supplier', 'dapur'])
@@ -87,7 +91,7 @@
 					</tr>
 				@empty
 					<tr>
-						<td colspan="5" style="padding:28px 16px;text-align:center;color:#6b7280;">Belum ada user untuk dikelola.</td>
+						<td colspan="7" style="padding:28px 16px;text-align:center;color:#6b7280;">Belum ada user untuk dikelola.</td>
 					</tr>
 				@endforelse
 			</tbody>

@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Superadmin\InsightController;
@@ -30,6 +31,10 @@ Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->name('adm
     // Users
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.update-role');
+
+    // Partners (Supplier & Dapur)
+    Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
+    Route::get('/partners/{user}', [PartnerController::class, 'show'])->name('partners.show');
 
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

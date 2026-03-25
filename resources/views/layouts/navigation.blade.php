@@ -73,14 +73,22 @@
                     </a>
                 </div>
 
-                <div class="hidden space-x-1 sm:-my-px sm:ms-12 sm:flex">
-                    @foreach($navItems as $item)
-                        @if(in_array($role, $item['roles']))
-                            <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['route'])" 
-                                class="px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 border-none
-                                {{ request()->routeIs($item['route']) ? $current['active'] : $current['link'] . ' hover:bg-white/5' }}">
-                                <span class="mr-2 opacity-80">{{ $item['icon'] }}</span>
-                                {{ __($item['label']) }}
+                <!-- Navigation Links -->
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
+
+                    @if(Auth::user()->hasRole(['admin', 'superadmin']))
+                        <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                            {{ __('Kelola Produk') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
+                            {{ __('Kelola Pesanan') }}
+                        </x-nav-link>
+                        @if(Auth::user()->hasRole('admin'))
+                            <x-nav-link :href="route('admin.finance.index')" :active="request()->routeIs('admin.finance.*')">
+                                {{ __('Laba & Gaji') }}
                             </x-nav-link>
                         @endif
                     @endforeach
@@ -129,20 +137,24 @@
         </div>
     </div>
 
-    <div x-show="open" 
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0 -translate-y-2"
-         x-transition:enter-end="opacity-100 translate-y-0"
-         class="sm:hidden {{ $current['bg'] }} border-t border-white/10">
-        <div class="p-4 space-y-2">
-            @foreach($navItems as $item)
-                @if(in_array($role, $item['roles']))
-                    <a href="{{ route($item['route']) }}" 
-                       class="flex items-center gap-4 px-4 py-4 rounded-xl text-white transition-all
-                       {{ request()->routeIs($item['route']) ? 'bg-white/20 border-l-4 border-white' : 'hover:bg-white/10 border-l-4 border-transparent' }}">
-                        <span class="text-xl">{{ $item['icon'] }}</span>
-                        <span class="font-bold tracking-wide">{{ $item['label'] }}</span>
-                    </a>
+    <!-- Responsive Navigation Menu -->
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+        <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+
+            @if(Auth::user()->hasRole(['admin', 'superadmin']))
+                <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                    {{ __('Kelola Produk') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
+                    {{ __('Kelola Pesanan') }}
+                </x-responsive-nav-link>
+                @if(Auth::user()->hasRole('admin'))
+                    <x-responsive-nav-link :href="route('admin.finance.index')" :active="request()->routeIs('admin.finance.*')">
+                        {{ __('Laba & Gaji') }}
+                    </x-responsive-nav-link>
                 @endif
             @endforeach
             
