@@ -39,9 +39,9 @@
             <tr>
                 <th>Nama barang</th>
                 <th class="right">Qty</th>
-                <th class="right">Jumlah</th>
                 <th>Satuan</th>
-                <th class="right">Harga beli supplier pasar</th>
+                <th class="right">Harga</th>
+                <th class="right">Jumlah</th>
             </tr>
         </thead>
         <tbody>
@@ -63,9 +63,9 @@
                 <tr>
                     <td>{{ $item->product->name ?? 'Produk Dihapus' }}</td>
                     <td class="right">{{ $item->quantity }}</td>
-                    <td class="right">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
                     <td>{{ $item->product->unit ?? 'pcs' }}</td>
                     <td class="right">Rp {{ number_format($supplierUnitPrice, 0, ',', '.') }}</td>
+                    <td class="right">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
         </tbody>

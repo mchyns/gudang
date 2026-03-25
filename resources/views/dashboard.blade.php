@@ -211,16 +211,27 @@
 
                 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-6">
                     <h3 class="text-lg font-bold mb-4">Katalog Bahan Baku</h3>
+
+                    @php
+                        $selectedCategoryId = request('category_id');
+                        $dashboardCategories = \App\Models\Category::all();
+                        $dashboardProducts = \App\Models\Product::where('status', 'active')
+                            ->whereNotNull('price')
+                            ->when($selectedCategoryId, function ($query) use ($selectedCategoryId) {
+                                $query->where('category_id', $selectedCategoryId);
+                            })
+                            ->get();
+                    @endphp
                     
                     <div class="flex gap-2 overflow-x-auto pb-4 mb-4">
-                        <button class="px-4 py-2 bg-gray-800 text-white rounded-full text-sm whitespace-nowrap">Semua</button>
-                        @foreach(\App\Models\Category::all() as $cat)
-                            <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-full text-sm hover:bg-gray-50 whitespace-nowrap">{{ $cat->name }}</button>
+                        <a href="{{ route('dashboard') }}" class="px-4 py-2 rounded-full text-sm whitespace-nowrap {{ $selectedCategoryId ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-gray-800 text-white' }}">Semua</a>
+                        @foreach($dashboardCategories as $cat)
+                            <a href="{{ route('dashboard', ['category_id' => $cat->id]) }}" class="px-4 py-2 rounded-full text-sm whitespace-nowrap {{ (string) $selectedCategoryId === (string) $cat->id ? 'bg-gray-800 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' }}">{{ $cat->name }}</a>
                         @endforeach
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        @foreach(\App\Models\Product::where('status', 'active')->whereNotNull('price')->get() as $product)
+                        @forelse($dashboardProducts as $product)
                         <div class="border rounded-xl p-4 hover:shadow-md transition bg-white flex flex-col h-full">
                             @if($product->image_url)
                                 <div class="h-32 bg-gray-100 rounded-lg mb-4 overflow-hidden">
@@ -249,7 +260,11 @@
                                 </a>
                             </div>
                         </div>
-                        @endforeach
+                        @empty
+                        <div class="col-span-full text-center py-10 bg-gray-50 rounded-lg">
+                            <p class="text-gray-500">Belum ada produk di kategori ini.</p>
+                        </div>
+                        @endforelse
                     </div>
                 </div>
             @endif
