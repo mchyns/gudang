@@ -23,6 +23,9 @@
                         <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
                             {{ __('Kelola Pesanan') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.partners.index')" :active="request()->routeIs('admin.partners.*')">
+                            {{ __('Daftar Mitra') }}
+                        </x-nav-link>
                         @if(Auth::user()->hasRole('admin'))
                             <x-nav-link :href="route('admin.finance.index')" :active="request()->routeIs('admin.finance.*')">
                                 {{ __('Laba & Gaji') }}
@@ -115,6 +118,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
                     {{ __('Kelola Pesanan') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.partners.index')" :active="request()->routeIs('admin.partners.*')">
+                    {{ __('Daftar Mitra') }}
                 </x-responsive-nav-link>
                 @if(Auth::user()->hasRole('admin'))
                     <x-responsive-nav-link :href="route('admin.finance.index')" :active="request()->routeIs('admin.finance.*')">

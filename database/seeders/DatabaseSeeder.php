@@ -36,6 +36,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Supplier Sayur Segar',
             'email' => 'supplier@hikari.com',
             'role' => 'supplier',
+            'phone' => '081200001111',
+            'address' => 'Jl. Kebun Sayur No. 12, Trenggalek',
             'password' => Hash::make('password'),
         ]);
         
@@ -43,6 +45,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Supplier Sembako Jaya',
             'email' => 'sembako@hikari.com',
             'role' => 'supplier',
+            'phone' => '081200002222',
+            'address' => 'Jl. Pasar Baru No. 8, Trenggalek',
             'password' => Hash::make('password'),
         ]);
 
@@ -51,6 +55,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Dapur Utama',
             'email' => 'dapur@hikari.com',
             'role' => 'dapur',
+            'phone' => '081300003333',
+            'address' => 'Jl. Dapur Sehat No. 1, Trenggalek',
             'password' => Hash::make('password'),
         ]);
 

@@ -619,6 +619,50 @@
                         @endforeach
                     </div>
 
+                    <div class="field-group reveal d3">
+                        <label class="field-label" for="phone">Nomor HP</label>
+                        <div class="field-wrap">
+                            <svg class="field-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.9.33 1.78.63 2.62a2 2 0 01-.45 2.11L8.1 9.9a16 16 0 006 6l1.45-1.22a2 2 0 012.11-.45c.84.3 1.72.51 2.62.63A2 2 0 0122 16.92z"/></svg>
+                            <input
+                                id="phone"
+                                class="field-input {{ $errors->get('phone') ? 'has-error' : '' }}"
+                                type="text"
+                                name="phone"
+                                value="{{ old('phone') }}"
+                                required
+                                placeholder="Contoh: 081234567890"
+                            />
+                        </div>
+                        @foreach ($errors->get('phone') as $message)
+                        <div class="field-error">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            {{ $message }}
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <div class="field-group reveal d3">
+                        <label class="field-label" for="address">Alamat Lengkap</label>
+                        <div class="field-wrap">
+                            <svg class="field-icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <input
+                                id="address"
+                                class="field-input {{ $errors->get('address') ? 'has-error' : '' }}"
+                                type="text"
+                                name="address"
+                                value="{{ old('address') }}"
+                                required
+                                placeholder="Contoh: Jl. Merdeka No. 10, Kota..."
+                            />
+                        </div>
+                        @foreach ($errors->get('address') as $message)
+                        <div class="field-error">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            {{ $message }}
+                        </div>
+                        @endforeach
+                    </div>
+
                     <!-- Passwords in 2-col grid on large screens -->
                     <div class="section-divider reveal d3"><span>Keamanan Akun</span></div>
 

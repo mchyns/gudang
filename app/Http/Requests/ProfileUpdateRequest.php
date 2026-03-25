@@ -16,6 +16,8 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isOperationalRole = in_array($this->user()?->role, ['supplier', 'dapur'], true);
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
@@ -26,6 +28,8 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'phone' => [$isOperationalRole ? 'required' : 'nullable', 'string', 'max:30'],
+            'address' => [$isOperationalRole ? 'required' : 'nullable', 'string', 'max:1000'],
         ];
     }
 }
