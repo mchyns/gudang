@@ -68,6 +68,7 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
     // Supplier manages their own products
     Route::resource('products', ProductController::class)->except(['show']);
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
+    Route::patch('/orders/{order}/supplier-note', [OrderController::class, 'updateSupplierNote'])->name('orders.update-note');
 });
 
 // ----------------------------------------------------------------------------------

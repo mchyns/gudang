@@ -4,25 +4,25 @@
     // Konfigurasi tema premium: Semua disamakan dengan basis Indigo Admin
     $themes = [
         'supplier' => [
-            'bg' => 'bg-indigo-900/95',
+            'bg' => 'bg-indigo-900',
             'brand' => 'text-white',
             'link' => 'text-indigo-100 hover:text-white',
             'active' => 'bg-white/10 text-white border-white',
         ],
         'admin' => [
-            'bg' => 'bg-indigo-900/95',
+            'bg' => 'bg-indigo-900',
             'brand' => 'text-white',
             'link' => 'text-indigo-100 hover:text-white',
             'active' => 'bg-white/10 text-white border-white',
         ],
         'superadmin' => [
-            'bg' => 'bg-indigo-950/98', // Sedikit lebih gelap untuk Superadmin agar tetap ada hierarki
+            'bg' => 'bg-indigo-900',
             'brand' => 'text-white',
             'link' => 'text-indigo-100 hover:text-white',
             'active' => 'bg-white/10 text-white border-white',
         ],
         'dapur' => [
-            'bg' => 'bg-indigo-900/95',
+            'bg' => 'bg-indigo-900',
             'brand' => 'text-white',
             'link' => 'text-indigo-100 hover:text-white',
             'active' => 'bg-white/10 text-white border-white',
@@ -50,7 +50,7 @@
 @endphp
 
 <nav x-data="{ open: false }" 
-     class="{{ $current['bg'] }} backdrop-blur-md sticky top-0 z-50 border-b border-white/10 shadow-2xl transition-all duration-500">
+    class="{{ $current['bg'] }} sticky top-0 z-50 border-b border-white/10 shadow-2xl transition-all duration-500">
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20">
@@ -86,12 +86,15 @@
                         <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
                             {{ __('Kelola Pesanan') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.partners.index')" :active="request()->routeIs('admin.partners.*')">
+                            {{ __('Daftar Mitra') }}
+                        </x-nav-link>
                         @if(Auth::user()->hasRole('admin'))
                             <x-nav-link :href="route('admin.finance.index')" :active="request()->routeIs('admin.finance.*')">
                                 {{ __('Laba & Gaji') }}
                             </x-nav-link>
                         @endif
-                    @endforeach
+                    @endif
                 </div>
             </div>
 
@@ -151,13 +154,16 @@
                 <x-responsive-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
                     {{ __('Kelola Pesanan') }}
                 </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.partners.index')" :active="request()->routeIs('admin.partners.*')">
+                    {{ __('Daftar Mitra') }}
+                </x-responsive-nav-link>
                 @if(Auth::user()->hasRole('admin'))
                     <x-responsive-nav-link :href="route('admin.finance.index')" :active="request()->routeIs('admin.finance.*')">
                         {{ __('Laba & Gaji') }}
                     </x-responsive-nav-link>
                 @endif
-            @endforeach
-            
+            @endif
+
             <div class="mt-4 pt-4 border-t border-white/10">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

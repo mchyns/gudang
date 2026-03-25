@@ -28,10 +28,10 @@
     </div>
 
     <div class="box">
-        <div><strong>Pemesan:</strong> {{ $order->user->name ?? '-' }}</div>
+        <div><strong>Penerima:</strong> {{ $viewerRole === 'supplier' ? 'Gudang' : ($order->user->name ?? '-') }}</div>
         <div><strong>Tanggal:</strong> {{ $order->created_at->format('d M Y H:i') }}</div>
         <div><strong>Status:</strong> {{ ucfirst($order->status) }}</div>
-        <div><strong>Catatan:</strong> {{ $order->note ?: '-' }}</div>
+        <div><strong>Catatan:</strong> {{ $viewerRole === 'supplier' ? ($order->supplier_note ?: '-') : ($order->note ?: '-') }}</div>
     </div>
 
     <table>
@@ -64,7 +64,7 @@
                     <td>{{ $item->product->name ?? 'Produk Dihapus' }}</td>
                     <td class="right">{{ $item->quantity }}</td>
                     <td>{{ $item->product->unit ?? 'pcs' }}</td>
-                    <td class="right">Rp {{ number_format($supplierUnitPrice, 0, ',', '.') }}</td>
+                    <td class="right">Rp {{ number_format($unitPrice, 0, ',', '.') }}</td>
                     <td class="right">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
                 </tr>
             @endforeach

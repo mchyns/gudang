@@ -18,6 +18,18 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="bg-rose-100 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             
             <!-- SUPERADMIN VIEW -->
             @if(Auth::user()->role === 'superadmin')
@@ -91,7 +103,6 @@
                                     <th class="px-4 py-2">Nama Barang</th>
                                     <th class="px-4 py-2">Stok</th>
                                     <th class="px-4 py-2">Supplier</th>
-                                    <th class="px-4 py-2">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -100,9 +111,6 @@
                                     <td class="px-4 py-2 font-medium">{{ $item->name }}</td>
                                     <td class="px-4 py-2 text-red-600 font-bold">{{ $item->stock }}</td>
                                     <td class="px-4 py-2">{{ $item->supplier->name ?? '-' }}</td>
-                                    <td class="px-4 py-2">
-                                        <button class="text-blue-600 hover:underline">Restock</button>
-                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -168,7 +176,8 @@
                                         <tr>
                                             <th class="px-4 py-2">Order</th>
                                             <th class="px-4 py-2">Tanggal</th>
-                                            <th class="px-4 py-2">Mitra Dapur</th>
+                                            <th class="px-4 py-2">Penerima</th>
+                                            <th class="px-4 py-2">Catatan Supplier ke Gudang</th>
                                             <th class="px-4 py-2">Status</th>
                                             <th class="px-4 py-2 text-right">Nota</th>
                                         </tr>
@@ -183,7 +192,15 @@
                                             <tr class="border-b">
                                                 <td class="px-4 py-2">#{{ $order->id }}</td>
                                                 <td class="px-4 py-2">{{ $order->created_at->format('d M Y H:i') }}</td>
-                                                <td class="px-4 py-2">{{ $order->user->name ?? '-' }}</td>
+                                                <td class="px-4 py-2">Gudang</td>
+                                                <td class="px-4 py-2 min-w-[280px]">
+                                                    <form action="{{ route('supplier.orders.update-note', $order) }}" method="POST" class="flex gap-2 items-center">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="text" name="supplier_note" value="{{ old('supplier_note', $order->supplier_note) }}" class="w-full border-gray-300 rounded-md text-xs" placeholder="Catatan untuk gudang (opsional)">
+                                                        <button type="submit" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-[11px] font-semibold text-slate-700 whitespace-nowrap">Simpan</button>
+                                                    </form>
+                                                </td>
                                                 <td class="px-4 py-2">{{ ucfirst($order->status) }}</td>
                                                 <td class="px-4 py-2 text-right">
                                                     <a href="{{ route('supplier.orders.invoice', $order->id) }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-semibold">Lihat Nota</a>
@@ -191,7 +208,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="5" class="px-4 py-3 text-center text-gray-500">Belum ada nota untuk supplier ini.</td>
+                                                <td colspan="6" class="px-4 py-3 text-center text-gray-500">Belum ada nota untuk supplier ini.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -300,7 +317,7 @@
             @empty
             <div class="col-span-full text-center py-20 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100">
                 <span class="text-4xl block mb-4">📦</span>
-                <p class="text-slate-500 font-bold uppercase tracking-widest text-xs font-black">Belum ada produk di kategori ini.</p>
+                <p class="text-slate-500 uppercase tracking-widest text-xs font-black">Belum ada produk di kategori ini.</p>
             </div>
             @endforelse
         </div>

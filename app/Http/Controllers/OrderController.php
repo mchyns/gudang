@@ -270,6 +270,40 @@ class OrderController extends Controller
         ]);
     }
 
+    public function updateSupplierNote(Request $request, Order $order)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'supplier') {
+            abort(403);
+        }
+
+        $hasSupplierItem = $order->orderItems()->whereHas('product', function ($query) use ($user) {
+            $query->where('supplier_id', $user->id);
+        })->exists();
+
+        if (!$hasSupplierItem) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'supplier_note' => 'nullable|string|max:1000',
+        ]);
+
+        $order->update([
+            'supplier_note' => $validated['supplier_note'] ?? null,
+        ]);
+
+        ActivityLogger::log(
+            'order.supplier_note_updated',
+            'Supplier memperbarui catatan nota order #' . $order->id,
+            $order,
+            ['supplier_note' => $order->supplier_note]
+        );
+
+        return back()->with('success', 'Catatan supplier ke gudang berhasil disimpan.');
+    }
+
     private function normalizeNominalInput($value): ?string
     {
         if ($value === null) {

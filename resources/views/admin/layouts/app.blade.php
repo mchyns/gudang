@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'HIKARI Logistik') }} — {{ $title ?? 'Dashboard' }}</title>
 
-    <link rel="icon" type="image/png" href="{{ asset('images/teslog.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=syne:400,500,600,700,800&family=dm-sans:300,400,500,600" rel="stylesheet" />
 
