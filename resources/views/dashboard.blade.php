@@ -1,6 +1,6 @@
 
 <x-app-layout>
-    <x-slot name="header">
+    {{-- <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             @if(Auth::user()->role === 'superadmin')
                 {{ __('Dashboard Superadmin') }}
@@ -14,7 +14,7 @@
                 {{ __('Dashboard') }}
             @endif
         </h2>
-    </x-slot>
+    </x-slot> --}}
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -202,73 +202,110 @@
                 </div>
             @endif
 
-            <!-- MITRA DAPUR VIEW -->
-            @if(Auth::user()->role === 'dapur')
-                <div class="rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50 via-white to-violet-50 p-5">
-                    <h3 class="text-lg font-bold text-violet-900">Area Mitra Dapur</h3>
-                    <p class="text-sm text-violet-700 mt-1">Pilih bahan baku dengan mudah, lakukan order cepat, dan pantau riwayat pesanan.</p>
+           @if(Auth::user()->role === 'dapur')
+    <div class="relative overflow-hidden rounded-3xl border border-blue-100 bg-white p-8 shadow-sm mb-8">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <h3 class="text-2xl font-black text-slate-900 tracking-tight" style="font-family: 'Syne', sans-serif;">
+                    AREA MITRA <span class="text-blue-700">DAPUR</span>
+                </h3>
+                <p class="text-slate-500 text-sm font-medium mt-2 max-w-xl leading-relaxed">
+                    Kelola kebutuhan dapur Anda dengan standar profesional. Pilih bahan baku terbaik dan pantau pesanan Anda secara langsung.
+                </p>
+            </div>
+            <div>
+                <a href="{{ route('dapur.orders.my_orders') }}" class="inline-flex items-center px-6 py-3 bg-slate-50 text-slate-700 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-slate-100 transition-all border border-slate-200 shadow-sm">
+                    Riwayat Pesanan 📜
+                </a>
+            </div>
+        </div>
+        <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-50 rounded-full blur-3xl opacity-60"></div>
+    </div>
+
+    <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Katalog Bahan Baku</h3>
+            
+            @php
+                $selectedCategoryId = request('category_id');
+                $dashboardCategories = \App\Models\Category::all();
+                $dashboardProducts = \App\Models\Product::where('status', 'active')
+                    ->whereNotNull('price')
+                    ->when($selectedCategoryId, function ($query) use ($selectedCategoryId) {
+                        $query->where('category_id', $selectedCategoryId);
+                    })
+                    ->get();
+            @endphp
+            
+            <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                <a href="{{ route('dashboard') }}" 
+                   class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap
+                   {{ !$selectedCategoryId ? 'bg-blue-700 text-white shadow-lg shadow-blue-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100 border border-slate-100' }}">
+                   Semua
+                </a>
+                @foreach($dashboardCategories as $cat)
+                    <a href="{{ route('dashboard', ['category_id' => $cat->id]) }}" 
+                       class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap
+                       {{ (string) $selectedCategoryId === (string) $cat->id ? 'bg-blue-700 text-white shadow-lg shadow-blue-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100 border border-slate-100' }}">
+                       {{ $cat->name }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            @forelse($dashboardProducts as $product)
+            <div class="group border border-slate-50 rounded-3xl p-5 hover:shadow-2xl hover:shadow-blue-100/50 transition-all duration-500 bg-white flex flex-col h-full relative">
+                
+                <div class="h-44 bg-slate-50 rounded-2xl mb-5 overflow-hidden border border-slate-50 relative">
+                    @if($product->image_url)
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy">
+                    @else
+                        <div class="h-full w-full flex items-center justify-center text-slate-200">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                    @endif
+                    
+                    <div class="absolute top-3 right-3">
+                        <span class="bg-white/80 backdrop-blur px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter text-blue-700 shadow-sm border border-blue-50">
+                            {{ $product->category->name ?? 'Stok' }}
+                        </span>
+                    </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-6">
-                    <h3 class="text-lg font-bold mb-4">Katalog Bahan Baku</h3>
-
-                    @php
-                        $selectedCategoryId = request('category_id');
-                        $dashboardCategories = \App\Models\Category::all();
-                        $dashboardProducts = \App\Models\Product::where('status', 'active')
-                            ->whereNotNull('price')
-                            ->when($selectedCategoryId, function ($query) use ($selectedCategoryId) {
-                                $query->where('category_id', $selectedCategoryId);
-                            })
-                            ->get();
-                    @endphp
+                <div class="flex flex-col flex-grow">
+                    <h4 class="font-bold text-slate-900 group-hover:text-blue-700 transition-colors duration-300 text-lg leading-tight mb-2 uppercase">{{ $product->name }}</h4>
+                    <p class="text-xs text-slate-400 mb-6 line-clamp-2 font-medium leading-relaxed">{{ $product->description }}</p>
                     
-                    <div class="flex gap-2 overflow-x-auto pb-4 mb-4">
-                        <a href="{{ route('dashboard') }}" class="px-4 py-2 rounded-full text-sm whitespace-nowrap {{ $selectedCategoryId ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-gray-800 text-white' }}">Semua</a>
-                        @foreach($dashboardCategories as $cat)
-                            <a href="{{ route('dashboard', ['category_id' => $cat->id]) }}" class="px-4 py-2 rounded-full text-sm whitespace-nowrap {{ (string) $selectedCategoryId === (string) $cat->id ? 'bg-gray-800 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' }}">{{ $cat->name }}</a>
-                        @endforeach
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        @forelse($dashboardProducts as $product)
-                        <div class="border rounded-xl p-4 hover:shadow-md transition bg-white flex flex-col h-full">
-                            @if($product->image_url)
-                                <div class="h-32 bg-gray-100 rounded-lg mb-4 overflow-hidden">
-                                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'; this.parentElement.nextElementSibling.style.display='flex';">
-                                </div>
-                                <div class="h-32 bg-gray-100 rounded-lg mb-4 items-center justify-center text-gray-400 hidden">
-                                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                </div>
-                            @else
-                                <div class="h-32 bg-gray-100 rounded-lg mb-4 flex items-center justify-center text-gray-400">
-                                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                </div>
-                            @endif
-                            <h4 class="font-bold text-gray-900 mb-1">{{ $product->name }}</h4>
-                            <p class="text-xs text-gray-500 mb-3 line-clamp-2">{{ $product->description }}</p>
-                            
-                            <div class="mt-auto">
-                                <div class="flex justify-between items-end mb-3">
-                                    <div>
-                                        <p class="text-xs text-gray-500">Harga per unit</p>
-                                        <p class="text-lg font-bold text-indigo-700">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
-                                    </div>
-                                </div>
-                                <a href="{{ route('dapur.orders.create') }}" class="block text-center w-full py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
-                                    + Order Sekarang
-                                </a>
+                    <div class="mt-auto pt-5 border-t border-slate-50">
+                        <div class="flex justify-between items-center mb-5">
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Harga / Unit</p>
+                                <p class="text-xl font-black text-slate-900">Rp{{ number_format($product->price, 0, ',', '.') }}</p>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse"></div>
+                                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-tighter">Tersedia</span>
                             </div>
                         </div>
-                        @empty
-                        <div class="col-span-full text-center py-10 bg-gray-50 rounded-lg">
-                            <p class="text-gray-500">Belum ada produk di kategori ini.</p>
-                        </div>
-                        @endforelse
+                        
+                        <a href="{{ route('dapur.orders.create') }}" 
+                           class="flex items-center justify-center gap-2 w-full py-4 bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-800 hover:shadow-xl hover:shadow-blue-200 transition-all duration-300">
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                           Pesan Sekarang
+                        </a>
                     </div>
                 </div>
-            @endif
-
+            </div>
+            @empty
+            <div class="col-span-full text-center py-20 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100">
+                <span class="text-4xl block mb-4">📦</span>
+                <p class="text-slate-500 font-bold uppercase tracking-widest text-xs font-black">Belum ada produk di kategori ini.</p>
+            </div>
+            @endforelse
+        </div>
+    </div>
+@endif
         </div>
     </div>
 </x-app-layout>
