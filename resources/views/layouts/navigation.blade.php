@@ -15,6 +15,44 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @if(Auth::user()->hasRole(['admin', 'superadmin']))
+                        <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                            {{ __('Kelola Produk') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
+                            {{ __('Kelola Pesanan') }}
+                        </x-nav-link>
+                        @if(Auth::user()->hasRole('admin'))
+                            <x-nav-link :href="route('admin.finance.index')" :active="request()->routeIs('admin.finance.*')">
+                                {{ __('Laba & Gaji') }}
+                            </x-nav-link>
+                        @endif
+                        <x-nav-link :href="route('admin.activity-logs.index')" :active="request()->routeIs('admin.activity-logs.*')">
+                            {{ __('Log Aktivitas') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->hasRole('superadmin'))
+                        <x-nav-link :href="route('superadmin.insights.index')" :active="request()->routeIs('superadmin.insights.*')">
+                            {{ __('Insight') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->hasRole('supplier'))
+                        <x-nav-link :href="route('supplier.products.index')" :active="request()->routeIs('supplier.products.*')">
+                            {{ __('Produk Saya') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->hasRole('dapur'))
+                        <x-nav-link :href="route('dapur.orders.create')" :active="request()->routeIs('dapur.orders.create')">
+                            {{ __('Order Barang') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('dapur.orders.my_orders')" :active="request()->routeIs('dapur.orders.my_orders')">
+                            {{ __('Riwayat') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +108,44 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @if(Auth::user()->hasRole(['admin', 'superadmin']))
+                <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                    {{ __('Kelola Produk') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
+                    {{ __('Kelola Pesanan') }}
+                </x-responsive-nav-link>
+                @if(Auth::user()->hasRole('admin'))
+                    <x-responsive-nav-link :href="route('admin.finance.index')" :active="request()->routeIs('admin.finance.*')">
+                        {{ __('Laba & Gaji') }}
+                    </x-responsive-nav-link>
+                @endif
+                <x-responsive-nav-link :href="route('admin.activity-logs.index')" :active="request()->routeIs('admin.activity-logs.*')">
+                    {{ __('Log Aktivitas') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->hasRole('superadmin'))
+                <x-responsive-nav-link :href="route('superadmin.insights.index')" :active="request()->routeIs('superadmin.insights.*')">
+                    {{ __('Insight') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->hasRole('supplier'))
+                <x-responsive-nav-link :href="route('supplier.products.index')" :active="request()->routeIs('supplier.products.*')">
+                    {{ __('Produk Saya') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->hasRole('dapur'))
+                <x-responsive-nav-link :href="route('dapur.orders.create')" :active="request()->routeIs('dapur.orders.create')">
+                    {{ __('Order Barang') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('dapur.orders.my_orders')" :active="request()->routeIs('dapur.orders.my_orders')">
+                    {{ __('Riwayat') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

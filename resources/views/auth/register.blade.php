@@ -595,6 +595,30 @@
                         @endforeach
                     </div>
 
+                    <!-- Role Selection -->
+                    <div class="field-group reveal d2">
+                        <label class="field-label" for="role">Daftar Sebagai</label>
+                        <div class="field-wrap">
+                            <svg class="field-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                            <select
+                                id="role"
+                                class="field-input {{ $errors->get('role') ? 'has-error' : '' }}"
+                                name="role"
+                                required
+                            >
+                                <option value="" disabled selected>Pilih Peran Anda</option>
+                                <option value="dapur">Mitra Dapur</option>
+                                <option value="supplier">Supplier Barang</option>
+                            </select>
+                        </div>
+                        @foreach ($errors->get('role') as $message)
+                        <div class="field-error">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            {{ $message }}
+                        </div>
+                        @endforeach
+                    </div>
+
                     <!-- Passwords in 2-col grid on large screens -->
                     <div class="section-divider reveal d3"><span>Keamanan Akun</span></div>
 

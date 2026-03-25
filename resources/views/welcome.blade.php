@@ -161,8 +161,8 @@
 
         .hero-inner {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 72px;
+            grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+            gap: clamp(32px, 4vw, 56px);
             align-items: center;
             width: 100%;
         }
@@ -207,12 +207,12 @@
         /* Headline */
         .hero-h1 {
             font-family: 'Syne', sans-serif;
-            font-size: clamp(2.8rem, 5vw, 4.8rem);
+            font-size: clamp(2rem, 3.5vw, 3.5rem);
             font-weight: 800;
-            line-height: 1.03;
-            letter-spacing: -0.03em;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
             color: var(--ink);
-            margin-bottom: 22px;
+            margin-bottom: 24px;
         }
 
         .hero-h1 .line-blue {
@@ -297,6 +297,7 @@
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 2px 12px rgba(17,31,162,0.06);
+            width: 100%;
             max-width: 460px;
         }
 
@@ -311,16 +312,69 @@
         .stat-lbl { font-size: 0.68rem; color: var(--ink-faint); margin-top: 4px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
 
         /* ── HERO VISUAL ── */
-        .hero-visual { position: relative; }
+        .hero-visual {
+            position: relative;
+            max-width: 560px;
+            width: 100%;
+            margin-left: auto;
+            padding: 26px 16px 22px;
+            isolation: isolate;
+        }
+
+        .visual-backplate {
+            position: absolute;
+            inset: 10px 14px 8px 12px;
+            border-radius: 34px;
+            border: 1px solid rgba(17,31,162,0.1);
+            background: linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(232,234,255,0.48) 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+            z-index: -2;
+        }
+
+        .visual-backplate::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            right: -22px;
+            width: 74%;
+            height: calc(100% - 28px);
+            border-radius: 28px;
+            border: 1px solid rgba(17,31,162,0.08);
+            background: rgba(240,242,255,0.65);
+            z-index: -1;
+        }
+
+        .visual-glow {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            filter: blur(8px);
+            pointer-events: none;
+            z-index: -3;
+        }
+
+        .visual-glow-a {
+            top: -40px;
+            right: -36px;
+            background: radial-gradient(circle, rgba(17,31,162,0.15) 0%, rgba(17,31,162,0) 68%);
+        }
+
+        .visual-glow-b {
+            bottom: -60px;
+            left: -40px;
+            background: radial-gradient(circle, rgba(254,255,211,0.7) 0%, rgba(254,255,211,0) 70%);
+        }
 
         .visual-card-main {
             background: var(--white);
             border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 28px;
+            border-radius: 26px;
+            padding: clamp(22px, 2.2vw, 28px);
             box-shadow: 0 20px 60px rgba(17,31,162,0.1), 0 4px 16px rgba(17,31,162,0.06);
             position: relative;
             overflow: hidden;
+            z-index: 2;
         }
 
         .visual-card-main::before {
@@ -365,7 +419,6 @@
 
         /* Progress list */
         .vc-progress-list { display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1; }
-        .vc-progress-item { }
         .vc-pi-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .vc-pi-name { font-size: 0.75rem; font-weight: 500; color: var(--ink-mid); }
         .vc-pi-val { font-size: 0.72rem; font-weight: 600; color: var(--navy); }
@@ -380,10 +433,12 @@
             border-radius: 14px;
             padding: 12px 16px;
             box-shadow: 0 8px 28px rgba(17,31,162,0.1), 0 2px 8px rgba(0,0,0,0.04);
+            z-index: 3;
+            backdrop-filter: blur(3px);
         }
-        .fc-a { top: -28px; right: -20px; animation: floatchip 5s ease-in-out infinite; }
-        .fc-b { bottom: 60px; left: -32px; animation: floatchip 7s ease-in-out infinite 1.2s; }
-        .fc-c { bottom: -20px; right: 40px; animation: floatchip 6s ease-in-out infinite 0.6s; }
+        .fc-a { top: -10px; right: 24px; animation: floatchip 5s ease-in-out infinite; }
+        .fc-b { bottom: 42px; left: -18px; animation: floatchip 7s ease-in-out infinite 1.2s; }
+        .fc-c { bottom: -12px; right: 10px; animation: floatchip 6s ease-in-out infinite 0.6s; }
 
         @keyframes floatchip { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 
@@ -400,7 +455,7 @@
         .section-wrap {
             max-width: 1360px;
             margin: 0 auto;
-            padding: clamp(72px,10vw,120px) clamp(1.25rem,5vw,4rem);
+            padding: clamp(48px,5vw,80px) clamp(1.25rem,5vw,4rem);
         }
 
         .section-eyebrow {
@@ -443,7 +498,7 @@
         .feat-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
+            gap: 24px;
             margin-top: 56px;
         }
 
@@ -786,6 +841,8 @@
             .hero-sub, .stats-strip { max-width: 100%; }
             .cta-row, .stats-strip { justify-content: flex-start; }
             .visual-card-main { max-width: 540px; margin: 0 auto; }
+            .hero-visual { max-width: 620px; margin: 0 auto; }
+            .fc-a { right: 42px; }
             .feat-grid { grid-template-columns: repeat(2,1fr); }
             .preview-inner { grid-template-columns: 1fr; }
             .cta-box { grid-template-columns: 1fr; }
@@ -795,7 +852,13 @@
         @media (max-width: 768px) {
             .feat-grid { grid-template-columns: 1fr; }
             .hero-h1 { font-size: clamp(2.2rem,8vw,3rem); }
-            .fc-b, .fc-c { display: none; }
+            .hero-visual { padding: 8px 0 0; }
+            .visual-backplate,
+            .visual-backplate::after,
+            .visual-glow,
+            .fc-a,
+            .fc-b,
+            .fc-c { display: none; }
             .stats-strip { width: 100%; }
             .dash-kpi { grid-template-columns: repeat(2,1fr); }
             .cta-box { padding: 40px 28px; }
@@ -910,6 +973,10 @@
 
                 <!-- RIGHT — VISUAL -->
                 <div class="hero-visual reveal d2">
+                    <div class="visual-backplate"></div>
+                    <div class="visual-glow visual-glow-a"></div>
+                    <div class="visual-glow visual-glow-b"></div>
+
                     <!-- Floating chips -->
                     <div class="float-chip fc-a">
                         <div class="chip-label">Stok Masuk</div>

@@ -544,7 +544,7 @@
     <div class="app-shell">
 
         {{-- ════════ SIDEBAR ════════ --}}
-        {{-- @include('admin.layouts.side') --}}
+        @include('admin.layouts.side')
 
         {{-- ════════ MAIN AREA ════════ --}}
         <div class="main-wrapper" id="mainWrapper">
@@ -556,7 +556,7 @@
             <main class="page-content">
 
                 {{-- Flash messages --}}
-                {{-- @if (session('success'))
+                @if (session('success'))
                 <div class="flash-success" id="flashMsg">
                     <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                     {{ session('success') }}
@@ -572,7 +572,7 @@
                 </div>
                 @endif
 
-                {{ $slot }} --}}
+                @yield('content')
             </main>
         </div>
     </div>

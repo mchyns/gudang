@@ -29,6 +29,32 @@ class User extends Authenticatable
     ];
 
     /**
+     * Check user role
+     */
+    public function hasRole($roles)
+    {
+        if (is_string($roles)) {
+            return $this->role === $roles;
+        }
+        return in_array($this->role, $roles);
+    }
+
+    public function suppliedProducts()
+    {
+        return $this->hasMany(Product::class, 'supplier_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    /**
      * Casting data (misal password otomatis di-hash)
      */
     protected function casts(): array

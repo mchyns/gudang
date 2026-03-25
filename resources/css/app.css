@@ -1,3 +1,156 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+	--role-accent: #4f46e5;
+	--role-accent-soft: #eef2ff;
+	--role-accent-strong: #3730a3;
+	--shell-bg: linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%);
+}
+
+body {
+	font-family: 'Manrope', 'Segoe UI', sans-serif;
+	background: var(--shell-bg);
+	color: #1f2937;
+}
+
+body.role-admin {
+	--role-accent: #2563eb;
+	--role-accent-soft: #eff6ff;
+	--role-accent-strong: #1d4ed8;
+}
+
+body.role-superadmin {
+	--role-accent: #059669;
+	--role-accent-soft: #ecfdf5;
+	--role-accent-strong: #047857;
+}
+
+body.role-supplier {
+	--role-accent: #d97706;
+	--role-accent-soft: #fffbeb;
+	--role-accent-strong: #b45309;
+}
+
+body.role-dapur {
+	--role-accent: #7c3aed;
+	--role-accent-soft: #f5f3ff;
+	--role-accent-strong: #6d28d9;
+}
+
+.app-shell input[type='text'],
+.app-shell input[type='number'],
+.app-shell input[type='email'],
+.app-shell input[type='password'],
+.app-shell input[type='date'],
+.app-shell select,
+.app-shell textarea {
+	border-radius: 0.6rem;
+	border-color: #d1d5db;
+}
+
+.app-shell input:focus,
+.app-shell select:focus,
+.app-shell textarea:focus {
+	border-color: var(--role-accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--role-accent) 20%, transparent);
+}
+
+.role-nav-active {
+	border-color: var(--role-accent) !important;
+	color: var(--role-accent-strong) !important;
+}
+
+.role-nav-active-mobile {
+	border-color: var(--role-accent) !important;
+	color: var(--role-accent-strong) !important;
+	background: var(--role-accent-soft) !important;
+}
+
+.ui-panel {
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	border-radius: 0.9rem;
+	box-shadow: 0 10px 25px -18px rgba(15, 23, 42, 0.35);
+}
+
+.ui-panel-soft {
+	background: color-mix(in srgb, var(--role-accent-soft) 45%, #ffffff);
+	border: 1px solid color-mix(in srgb, var(--role-accent) 18%, #ffffff);
+	border-radius: 0.9rem;
+}
+
+.ui-title {
+	font-size: 1rem;
+	font-weight: 700;
+	color: #111827;
+}
+
+.ui-subtitle {
+	font-size: 0.82rem;
+	color: #6b7280;
+}
+
+.ui-kpi {
+	border-radius: 0.8rem;
+	border: 1px solid #e5e7eb;
+	background: #ffffff;
+	padding: 0.9rem;
+}
+
+.ui-kpi-label {
+	font-size: 0.7rem;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+
+.ui-kpi-value {
+	margin-top: 0.35rem;
+	font-size: 1.12rem;
+	font-weight: 700;
+	color: #111827;
+}
+
+.ui-btn-primary {
+	background: var(--role-accent);
+	color: #ffffff;
+	border-radius: 0.62rem;
+	font-size: 0.875rem;
+	padding: 0.5rem 0.9rem;
+	transition: filter 140ms ease;
+}
+
+.ui-btn-primary:hover {
+	filter: brightness(0.95);
+}
+
+.ui-btn-ghost {
+	background: #ffffff;
+	color: #374151;
+	border: 1px solid #d1d5db;
+	border-radius: 0.62rem;
+	font-size: 0.875rem;
+	padding: 0.5rem 0.9rem;
+}
+
+.ui-table-wrap {
+	overflow-x: auto;
+	border: 1px solid #e5e7eb;
+	border-radius: 0.8rem;
+}
+
+.ui-table thead {
+	background: #f9fafb;
+	color: #6b7280;
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.ui-table td,
+.ui-table th {
+	padding: 0.72rem 0.78rem;
+	vertical-align: top;
+}
