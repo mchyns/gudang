@@ -16,8 +16,8 @@
         </h2>
     </x-slot> --}}
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-8 sm:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             @if(session('success'))
                 <div class="bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
                     {{ session('success') }}
@@ -95,26 +95,28 @@
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
+                    <div class="p-4 sm:p-6">
                         <h3 class="text-lg font-bold mb-4">Produk Butuh Perhatian (Stok Rendah)</h3>
-                        <table class="w-full text-sm text-left">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-2">Nama Barang</th>
-                                    <th class="px-4 py-2">Stok</th>
-                                    <th class="px-4 py-2">Supplier</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach(\App\Models\Product::where('stock', '<', 20)->take(5)->get() as $item)
-                                <tr class="border-b">
-                                    <td class="px-4 py-2 font-medium">{{ $item->name }}</td>
-                                    <td class="px-4 py-2 text-red-600 font-bold">{{ $item->stock }}</td>
-                                    <td class="px-4 py-2">{{ $item->supplier->name ?? '-' }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[520px] text-sm text-left">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2">Nama Barang</th>
+                                        <th class="px-4 py-2">Stok</th>
+                                        <th class="px-4 py-2">Supplier</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach(\App\Models\Product::where('stock', '<', 20)->take(5)->get() as $item)
+                                    <tr class="border-b">
+                                        <td class="px-4 py-2 font-medium">{{ $item->name }}</td>
+                                        <td class="px-4 py-2 text-red-600 font-bold">{{ $item->stock }}</td>
+                                        <td class="px-4 py-2">{{ $item->supplier->name ?? '-' }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -220,7 +222,7 @@
             @endif
 
            @if(Auth::user()->role === 'dapur')
-    <div class="relative overflow-hidden rounded-3xl border border-blue-100 bg-white p-8 shadow-sm mb-8">
+    <div class="relative overflow-hidden rounded-3xl border border-blue-100 bg-white p-5 sm:p-8 shadow-sm mb-8">
         <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
                 <h3 class="text-2xl font-black text-slate-900 tracking-tight" style="font-family: 'Syne', sans-serif;">
@@ -239,7 +241,7 @@
         <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-50 rounded-full blur-3xl opacity-60"></div>
     </div>
 
-    <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-6">
+    <div class="bg-white p-5 sm:p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-6">
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Katalog Bahan Baku</h3>
             
@@ -270,7 +272,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8">
             @forelse($dashboardProducts as $product)
             <div class="group border border-slate-50 rounded-3xl p-5 hover:shadow-2xl hover:shadow-blue-100/50 transition-all duration-500 bg-white flex flex-col h-full relative">
                 

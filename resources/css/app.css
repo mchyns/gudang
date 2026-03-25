@@ -137,6 +137,7 @@ body.role-dapur {
 
 .ui-table-wrap {
 	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
 	border: 1px solid #e5e7eb;
 	border-radius: 0.8rem;
 }
@@ -153,4 +154,35 @@ body.role-dapur {
 .ui-table th {
 	padding: 0.72rem 0.78rem;
 	vertical-align: top;
+}
+
+img,
+svg,
+video,
+canvas {
+	max-width: 100%;
+	height: auto;
+}
+
+.app-shell .overflow-x-auto {
+	-webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+	.app-shell .max-w-7xl,
+	.app-shell .max-w-6xl,
+	.app-shell .max-w-5xl {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
+	.ui-table th,
+	.ui-table td {
+		padding: 0.62rem 0.64rem;
+		font-size: 0.76rem;
+	}
+
+	.ui-panel {
+		border-radius: 0.75rem;
+	}
 }

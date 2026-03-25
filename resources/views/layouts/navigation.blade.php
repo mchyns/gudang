@@ -53,20 +53,20 @@
     class="{{ $current['bg'] }} sticky top-0 z-50 border-b border-white/10 shadow-2xl transition-all duration-500">
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-20">
+        <div class="flex justify-between h-16 sm:h-20">
             <div class="flex items-center">
                 <div class="shrink-0 flex items-center group">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-                        <div class="relative bg-white p-2 rounded-xl shadow-lg transform group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
-                            <img src="{{ asset('images/logo.png') }}" alt="Hikarisou Logo" class="block h-11 w-auto">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 sm:gap-3">
+                        <div class="relative bg-white p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-lg transform group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
+                            <img src="{{ asset('images/logo.png') }}" alt="Hikarisou Logo" class="block h-8 sm:h-11 w-auto">
                         </div>
-                        <div class="flex flex-col ml-3">
+                        <div class="flex flex-col ml-1 sm:ml-3">
                             <span class="text-white tracking-tight leading-none uppercase" 
-                                style="font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; letter-spacing: -0.01em;">
+                                style="font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 800; letter-spacing: -0.01em;">
                                 HIKARI<span class="opacity-70 font-light text-indigo-200">SOU</span>
                             </span>
                             
-                            <span class="text-white text-[9px] tracking-[0.4em] uppercase opacity-50 font-medium mt-0.5">
+                            <span class="hidden sm:block text-white text-[9px] tracking-[0.4em] uppercase opacity-50 font-medium mt-0.5">
                                 Warehouse Management System
                             </span>
                         </div>
