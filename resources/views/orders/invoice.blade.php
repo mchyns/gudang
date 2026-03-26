@@ -28,7 +28,6 @@
         $isSupplierPurchase = $order->order_type === 'supplier_purchase';
         $isDapurViewer = $viewerRole === 'dapur';
         $isAdminViewer = in_array($viewerRole, ['admin', 'superadmin']);
-        $operationalExtras = collect($order->operational_extras ?? []);
     @endphp
 
     <div class="header">
@@ -139,34 +138,14 @@
 
     @if($isAdminViewer && !$isSupplierPurchase)
         @php
-            $operasionalTotal = (float) (
-                ($order->operational_bensin ?? 0)
-                + ($order->operational_kuli ?? 0)
-                + ($order->operational_makan_minum ?? 0)
-                + ($order->operational_listrik ?? 0)
-                + ($order->operational_wifi ?? 0)
-            );
-            $extraOperationalTotal = (float) $operationalExtras->sum(fn($extra) => (float) ($extra['amount'] ?? 0));
-            $operasionalTotal += $extraOperationalTotal;
             $hargaBeliDapur = (float) $order->total_price;
-            $labaKotor = ($supplierBaseTotal + $operasionalTotal) - $hargaBeliDapur;
+            $labaKotor = $hargaBeliDapur - $supplierBaseTotal;
         @endphp
 
         <div class="box" style="margin-top: 12px;">
             <div><strong>Harga beli supplier (H.B.S):</strong> Rp {{ number_format($supplierBaseTotal, 0, ',', '.') }}</div>
-            <div><strong>Operasional - Bensin:</strong> Rp {{ number_format($order->operational_bensin ?? 0, 0, ',', '.') }}</div>
-            <div><strong>Operasional - Kuli:</strong> Rp {{ number_format($order->operational_kuli ?? 0, 0, ',', '.') }}</div>
-            <div><strong>Operasional - Makan minum:</strong> Rp {{ number_format($order->operational_makan_minum ?? 0, 0, ',', '.') }}</div>
-            <div><strong>Operasional - Listrik:</strong> Rp {{ number_format($order->operational_listrik ?? 0, 0, ',', '.') }}</div>
-            <div><strong>Operasional - Wifi:</strong> Rp {{ number_format($order->operational_wifi ?? 0, 0, ',', '.') }}</div>
-
-            @foreach($operationalExtras as $extra)
-                <div><strong>Operasional - {{ $extra['label'] ?? 'Lainnya' }}:</strong> Rp {{ number_format((float) ($extra['amount'] ?? 0), 0, ',', '.') }}</div>
-            @endforeach
-
-            <div><strong>Total Operasional:</strong> Rp {{ number_format($operasionalTotal, 0, ',', '.') }}</div>
             <div><strong>Harga beli dapur:</strong> Rp {{ number_format($hargaBeliDapur, 0, ',', '.') }}</div>
-            <div><strong>Laba kotor (H.B.S + Operasional - Harga beli dapur):</strong> Rp {{ number_format($labaKotor, 0, ',', '.') }}</div>
+            <div><strong>Laba kotor (Harga beli dapur - H.B.S):</strong> Rp {{ number_format($labaKotor, 0, ',', '.') }}</div>
         </div>
     @endif
 

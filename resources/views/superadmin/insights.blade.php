@@ -11,6 +11,9 @@
                     <a href="{{ route('superadmin.insights.print', 'daily') }}" target="_blank" class="ui-btn-primary">Cetak Harian</a>
                     <a href="{{ route('superadmin.insights.print', 'weekly') }}" target="_blank" class="px-4 py-2 bg-emerald-600 text-white rounded text-sm hover:bg-emerald-700">Cetak Mingguan</a>
                     <a href="{{ route('superadmin.insights.print', 'monthly') }}" target="_blank" class="px-4 py-2 bg-amber-600 text-white rounded text-sm hover:bg-amber-700">Cetak Bulanan</a>
+                    <a href="{{ route('superadmin.insights.export', 'daily') }}" class="px-4 py-2 bg-slate-700 text-white rounded text-sm hover:bg-slate-800">Export Harian</a>
+                    <a href="{{ route('superadmin.insights.export', 'weekly') }}" class="px-4 py-2 bg-slate-700 text-white rounded text-sm hover:bg-slate-800">Export Mingguan</a>
+                    <a href="{{ route('superadmin.insights.export', 'monthly') }}" class="px-4 py-2 bg-slate-700 text-white rounded text-sm hover:bg-slate-800">Export Bulanan</a>
                 </div>
             </div>
 
@@ -20,18 +23,18 @@
                     <p class="text-2xl font-bold text-amber-700 mt-1">Rp {{ number_format($hargaBeliSupplier, 0, ',', '.') }}</p>
                 </div>
                 <div class="ui-panel p-5">
-                    <p class="text-xs uppercase text-gray-500">Total Operasional</p>
-                    <p class="text-2xl font-bold text-indigo-700 mt-1">Rp {{ number_format($operasionalTotal, 0, ',', '.') }}</p>
+                    <p class="text-xs uppercase text-gray-500">Total Harga Dapur</p>
+                    <p class="text-2xl font-bold text-indigo-700 mt-1">Rp {{ number_format($hargaBeliDapur, 0, ',', '.') }}</p>
                 </div>
                 <div class="bg-white border rounded-lg p-5">
-                    <p class="text-xs uppercase text-gray-500">Harga Beli Dapur</p>
-                    <p class="text-2xl font-bold text-green-700 mt-1">Rp {{ number_format($hargaBeliDapur, 0, ',', '.') }}</p>
+                    <p class="text-xs uppercase text-gray-500">Total Laba</p>
+                    <p class="text-2xl font-bold text-green-700 mt-1">Rp {{ number_format($labaKotor, 0, ',', '.') }}</p>
                 </div>
             </div>
 
             <div class="ui-panel p-5">
                 <h3 class="font-semibold text-gray-800 mb-2">Rumus Laba Kotor</h3>
-                <p class="text-sm text-gray-600 mb-2">Laba kotor = Harga beli supplier + Operasional - Harga beli dapur</p>
+                <p class="text-sm text-gray-600 mb-2">Laba kotor = Harga beli dapur - Harga beli supplier</p>
                 <p class="text-lg font-bold {{ $labaKotor >= 0 ? 'text-indigo-700' : 'text-red-700' }}">Rp {{ number_format($labaKotor, 0, ',', '.') }}</p>
             </div>
 
@@ -102,7 +105,6 @@
                                 <th class="px-3 py-2 text-left">Order</th>
                                 <th class="px-3 py-2 text-left">Dapur</th>
                                 <th class="px-3 py-2 text-left">Harga Supplier</th>
-                                <th class="px-3 py-2 text-left">Operasional</th>
                                 <th class="px-3 py-2 text-left">Harga Dapur</th>
                                 <th class="px-3 py-2 text-left">Laba Kotor</th>
                                 <th class="px-3 py-2 text-left">Nota</th>
@@ -114,30 +116,19 @@
                                     $supplierTotalPerOrder = $order->orderItems->sum(function ($item) {
                                         return ($item->quantity ?? 0) * ($item->product->supplier_price ?? 0);
                                     });
-                                    $opsPerOrder = (float) (
-                                        ($order->operational_bensin ?? 0)
-                                        + ($order->operational_kuli ?? 0)
-                                        + ($order->operational_makan_minum ?? 0)
-                                        + ($order->operational_listrik ?? 0)
-                                        + ($order->operational_wifi ?? 0)
-                                    );
-                                    $opsPerOrder += collect($order->operational_extras ?? [])->sum(function ($extra) {
-                                        return (float) ($extra['amount'] ?? 0);
-                                    });
-                                    $grossPerOrder = ($supplierTotalPerOrder + $opsPerOrder) - (float) $order->total_price;
+                                    $grossPerOrder = (float) $order->total_price - $supplierTotalPerOrder;
                                 @endphp
                                 <tr>
                                     <td class="px-3 py-2">#{{ $order->id }}</td>
                                     <td class="px-3 py-2">{{ $order->user->name ?? '-' }}</td>
                                     <td class="px-3 py-2">Rp {{ number_format($supplierTotalPerOrder, 0, ',', '.') }}</td>
-                                    <td class="px-3 py-2">Rp {{ number_format($opsPerOrder, 0, ',', '.') }}</td>
                                     <td class="px-3 py-2">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
                                     <td class="px-3 py-2 {{ $grossPerOrder >= 0 ? 'text-indigo-700' : 'text-red-700' }} font-semibold">Rp {{ number_format($grossPerOrder, 0, ',', '.') }}</td>
                                     <td class="px-3 py-2"><a href="{{ route('admin.orders.invoice', $order->id) }}" target="_blank" class="text-indigo-600 hover:text-indigo-800">Cetak</a></td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-3 py-4 text-center text-gray-500">Belum ada order.</td>
+                                    <td colspan="6" class="px-3 py-4 text-center text-gray-500">Belum ada order.</td>
                                 </tr>
                             @endforelse
                         </tbody>

@@ -31,9 +31,8 @@
 
     <div class="box">
         <div><strong>Total Harga Beli Supplier (H.B.S):</strong> Rp {{ number_format($hargaBeliSupplier, 0, ',', '.') }}</div>
-        <div><strong>Total Operasional:</strong> Rp {{ number_format($operasionalTotal, 0, ',', '.') }}</div>
         <div><strong>Total Harga Beli Dapur:</strong> Rp {{ number_format($hargaBeliDapur, 0, ',', '.') }}</div>
-        <div><strong>Laba Kotor (H.B.S + Operasional - Harga Beli Dapur):</strong> Rp {{ number_format($labaKotor, 0, ',', '.') }}</div>
+        <div><strong>Laba Kotor (Harga Beli Dapur - H.B.S):</strong> Rp {{ number_format($labaKotor, 0, ',', '.') }}</div>
         <div><strong>Total Order:</strong> {{ $orders->count() }}</div>
     </div>
 
@@ -45,7 +44,6 @@
                 <th>Mitra Dapur</th>
                 <th>Status</th>
                 <th class="right">Harga Supplier</th>
-                <th class="right">Operasional</th>
                 <th class="right">Harga Dapur</th>
                 <th class="right">Laba Kotor</th>
             </tr>
@@ -56,17 +54,7 @@
                     $supplierTotalPerOrder = $order->orderItems->sum(function ($item) {
                         return ($item->quantity ?? 0) * ($item->product->supplier_price ?? 0);
                     });
-                    $opsPerOrder = (float) (
-                        ($order->operational_bensin ?? 0)
-                        + ($order->operational_kuli ?? 0)
-                        + ($order->operational_makan_minum ?? 0)
-                        + ($order->operational_listrik ?? 0)
-                        + ($order->operational_wifi ?? 0)
-                    );
-                    $opsPerOrder += collect($order->operational_extras ?? [])->sum(function ($extra) {
-                        return (float) ($extra['amount'] ?? 0);
-                    });
-                    $grossPerOrder = ($supplierTotalPerOrder + $opsPerOrder) - (float) $order->total_price;
+                    $grossPerOrder = (float) $order->total_price - $supplierTotalPerOrder;
                 @endphp
                 <tr>
                     <td>#{{ $order->id }}</td>
@@ -74,13 +62,12 @@
                     <td>{{ $order->user->name ?? '-' }}</td>
                     <td><span class="badge">{{ ucfirst($order->status) }}</span></td>
                     <td class="right">Rp {{ number_format($supplierTotalPerOrder, 0, ',', '.') }}</td>
-                    <td class="right">Rp {{ number_format($opsPerOrder, 0, ',', '.') }}</td>
                     <td class="right">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
                     <td class="right">Rp {{ number_format($grossPerOrder, 0, ',', '.') }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="right">Tidak ada order untuk periode ini.</td>
+                    <td colspan="7" class="right">Tidak ada order untuk periode ini.</td>
                 </tr>
             @endforelse
         </tbody>

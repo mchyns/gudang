@@ -91,6 +91,12 @@
                                         @if($order->admin_note)
                                             <span class="block text-xs text-indigo-700 mt-1">Catatan Admin: {{ $order->admin_note }}</span>
                                         @endif
+                                        @if($order->order_type === 'dapur_sale' && $order->dapur_adjustment_note)
+                                            <span class="block text-xs text-amber-700 mt-1">Catatan Dapur: {{ $order->dapur_adjustment_note }}</span>
+                                        @endif
+                                        @if($order->order_type === 'dapur_sale' && $order->dapur_sales_note_locked_at)
+                                            <span class="inline-flex mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">Nota Dapur FIX</span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-500">
                                         <ul class="list-disc pl-4 text-xs">
@@ -98,6 +104,12 @@
                                                 <li>
                                                     {{ $item->product->name ?? 'Produk Dihapus' }} 
                                                     <span class="font-bold">x{{ $item->quantity }}</span>
+                                                    @if($order->order_type === 'dapur_sale' && $item->dapur_final_quantity !== null)
+                                                        <span class="block text-[11px] text-emerald-700">Qty final dapur: {{ $item->dapur_final_quantity }}</span>
+                                                    @endif
+                                                    @if($order->order_type === 'dapur_sale' && $item->dapur_item_note)
+                                                        <span class="block text-[11px] text-amber-700">Catatan item dapur: {{ $item->dapur_item_note }}</span>
+                                                    @endif
                                                 </li>
                                             @endforeach
                                         </ul>

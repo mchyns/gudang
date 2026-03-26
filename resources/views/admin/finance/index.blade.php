@@ -21,6 +21,7 @@
                         <a href="{{ route('admin.finance.index', ['period' => 'daily']) }}" class="px-3 py-2 rounded text-sm {{ $periodType === 'daily' ? 'ui-btn-primary' : 'ui-btn-ghost' }}">Harian</a>
                         <a href="{{ route('admin.finance.index', ['period' => 'weekly']) }}" class="px-3 py-2 rounded text-sm {{ $periodType === 'weekly' ? 'ui-btn-primary' : 'ui-btn-ghost' }}">Mingguan</a>
                         <a href="{{ route('admin.finance.index', ['period' => 'monthly']) }}" class="px-3 py-2 rounded text-sm {{ $periodType === 'monthly' ? 'ui-btn-primary' : 'ui-btn-ghost' }}">Bulanan</a>
+                        <a href="{{ route('admin.finance.export.spreadsheet', ['period' => $periodType]) }}" class="px-3 py-2 rounded text-sm bg-emerald-600 text-white hover:bg-emerald-700">Export Spreadsheet</a>
                     </div>
                 </div>
 
@@ -29,29 +30,63 @@
                     $kerugian = max($labaKotor * -1, 0);
                 @endphp
 
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-5">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
                     <div class="ui-kpi bg-amber-50 border-amber-100">
                         <p class="text-xs uppercase text-amber-700">Harga Beli Supplier</p>
                         <p class="text-lg font-bold text-amber-800">Rp {{ number_format($hargaBeliSupplier, 0, ',', '.') }}</p>
                     </div>
-                    <div class="ui-kpi bg-sky-50 border-sky-100">
-                        <p class="text-xs uppercase text-sky-700">Total Operasional</p>
-                        <p class="text-lg font-bold text-sky-800">Rp {{ number_format($operasionalTotal, 0, ',', '.') }}</p>
-                    </div>
                     <div class="ui-kpi bg-emerald-50 border-emerald-100">
-                        <p class="text-xs uppercase text-emerald-700">Harga Beli Dapur</p>
+                        <p class="text-xs uppercase text-emerald-700">Total Harga Dapur</p>
                         <p class="text-lg font-bold text-emerald-800">Rp {{ number_format($hargaBeliDapur, 0, ',', '.') }}</p>
                     </div>
                     <div class="ui-kpi bg-indigo-50 border-indigo-100">
-                        <p class="text-xs uppercase text-indigo-700">Keuntungan (Laba Kotor)</p>
+                        <p class="text-xs uppercase text-indigo-700">Laba</p>
                         <p class="text-lg font-bold text-indigo-800">Rp {{ number_format($keuntungan, 0, ',', '.') }}</p>
                     </div>
                     <div class="ui-kpi bg-rose-50 border-rose-100">
-                        <p class="text-xs uppercase text-rose-700">Kerugian (Laba Kotor)</p>
+                        <p class="text-xs uppercase text-rose-700">Rugi</p>
                         <p class="text-lg font-bold text-rose-800">Rp {{ number_format($kerugian, 0, ',', '.') }}</p>
                     </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-3">Rumus: H.B.S + Operasional - Harga Beli Dapur.</p>
+                <p class="text-xs text-gray-500 mt-3">Rumus: Laba = Total Harga Dapur - Total Harga Supplier.</p>
+            </div>
+
+            <div class="ui-panel p-5">
+                <h3 class="font-semibold text-gray-800 mb-4">Rincian Laba Per Barang</h3>
+                <div class="ui-table-wrap">
+                    <table class="min-w-[980px] w-full text-sm ui-table">
+                        <thead>
+                            <tr>
+                                <th class="px-3 py-2 text-left">Nama Barang</th>
+                                <th class="px-3 py-2 text-left">QTY</th>
+                                <th class="px-3 py-2 text-left">Satuan</th>
+                                <th class="px-3 py-2 text-left">Harga Supplier</th>
+                                <th class="px-3 py-2 text-left">Total Supplier</th>
+                                <th class="px-3 py-2 text-left">Harga Beli Dapur</th>
+                                <th class="px-3 py-2 text-left">Total Harga Dapur</th>
+                                <th class="px-3 py-2 text-left">Laba</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            @forelse($profitRows as $row)
+                                <tr>
+                                    <td class="px-3 py-2">{{ $row['product_name'] }}</td>
+                                    <td class="px-3 py-2">{{ number_format($row['qty'], 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2">{{ $row['unit'] }}</td>
+                                    <td class="px-3 py-2">Rp {{ number_format($row['harga_supplier'], 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2">Rp {{ number_format($row['total_supplier'], 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2">Rp {{ number_format($row['harga_dapur'], 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2">Rp {{ number_format($row['total_dapur'], 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2 font-semibold {{ $row['laba'] >= 0 ? 'text-emerald-700' : 'text-rose-700' }}">Rp {{ number_format($row['laba'], 0, ',', '.') }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="px-3 py-4 text-center text-gray-500">Belum ada data transaksi untuk periode ini.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="ui-panel p-5">

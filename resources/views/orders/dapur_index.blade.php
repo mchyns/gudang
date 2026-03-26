@@ -61,7 +61,7 @@
                                 <a href="{{ route('dapur.orders.invoice', $order->id) }}" target="_blank" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold">Nota Pembelian</a>
                                 @if($order->status === 'completed')
                                     <span class="mx-1 text-gray-300">|</span>
-                                    <a href="{{ route('dapur.orders.sales-note', $order->id) }}" target="_blank" class="text-xs text-emerald-600 hover:text-emerald-800 font-semibold">Nota Penjualan Gudang</a>
+                                    <a href="{{ route('dapur.orders.sales-note', $order->id) }}" class="text-xs text-emerald-600 hover:text-emerald-800 font-semibold">Review Nota Penjualan Gudang</a>
                                 @endif
                             </div>
                         </div>

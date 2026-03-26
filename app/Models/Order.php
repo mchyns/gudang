@@ -10,6 +10,8 @@ class Order extends Model
 
     protected $casts = [
         'drop_date' => 'date',
+        'dapur_sales_note_locked_at' => 'datetime',
+        'warehouse_stock_deducted_at' => 'datetime',
         'operational_extras' => 'array',
         'operational_bensin' => 'float',
         'operational_kuli' => 'float',
@@ -37,6 +39,11 @@ class Order extends Model
     public function supplierPurchases()
     {
         return $this->hasMany(self::class, 'source_dapur_order_id');
+    }
+
+    public function dapurSalesNoteLocker()
+    {
+        return $this->belongsTo(User::class, 'dapur_sales_note_locked_by');
     }
 
     public function getOperationalTotalAttribute(): float

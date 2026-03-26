@@ -78,6 +78,210 @@ class OrderController extends Controller
 
         $order->load(['user', 'orderItems.product.supplier']);
 
+        return view('orders.dapur_sales_note_edit', [
+            'order' => $order,
+            'sellerName' => 'Gudang',
+        ]);
+    }
+
+    public function updateDapurSalesNote(Request $request, Order $order)
+    {
+        if (Auth::user()->role !== 'dapur') {
+            abort(403);
+        }
+
+        if ((int) $order->user_id !== (int) Auth::id() || $order->order_type !== 'dapur_sale') {
+            abort(403);
+        }
+
+        if ($order->dapur_sales_note_locked_at) {
+            return back()->with('error', 'Nota sudah dikunci, tidak bisa diubah lagi.');
+        }
+
+        $validated = $request->validate([
+            'dapur_adjustment_note' => 'nullable|string|max:1000',
+            'items' => 'required|array',
+            'items.*.id' => 'required|exists:order_items,id',
+            'items.*.final_quantity' => 'required|integer|min:0',
+            'items.*.item_note' => 'nullable|string|max:1000',
+        ]);
+
+        DB::transaction(function () use ($order, $validated) {
+            $order->load('orderItems');
+            $itemMap = $order->orderItems->keyBy('id');
+
+            foreach ($validated['items'] as $payload) {
+                $itemId = (int) $payload['id'];
+                $item = $itemMap->get($itemId);
+
+                if (!$item) {
+                    continue;
+                }
+
+                $finalQty = (int) $payload['final_quantity'];
+                if ($finalQty > (int) $item->quantity) {
+                    $finalQty = (int) $item->quantity;
+                }
+
+                $item->update([
+                    'dapur_final_quantity' => $finalQty,
+                    'dapur_item_note' => $payload['item_note'] ?? null,
+                ]);
+            }
+
+            $order->update([
+                'dapur_adjustment_note' => $validated['dapur_adjustment_note'] ?? null,
+            ]);
+        });
+
+        return back()->with('success', 'Draft nota penjualan berhasil disimpan.');
+    }
+
+    public function finalizeDapurSalesNote(Order $order)
+    {
+        if (Auth::user()->role !== 'dapur') {
+            abort(403);
+        }
+
+        if ((int) $order->user_id !== (int) Auth::id() || $order->order_type !== 'dapur_sale') {
+            abort(403);
+        }
+
+        if ($order->dapur_sales_note_locked_at) {
+            return back()->with('success', 'Nota sudah terkunci sebelumnya.');
+        }
+
+        DB::transaction(function () use ($order) {
+            $order->load('orderItems');
+
+            foreach ($order->orderItems as $item) {
+                $orderedQty = (int) $item->quantity;
+                $finalQty = $item->dapur_final_quantity;
+
+                if ($finalQty === null) {
+                    $finalQty = $orderedQty;
+                    $item->update(['dapur_final_quantity' => $finalQty]);
+                }
+
+                if ((int) $finalQty < $orderedQty) {
+                    throw new \Exception('Masih ada barang kurang/rusak. Minta admin kirim kekurangan dulu sebelum kunci nota.');
+                }
+            }
+
+            $order->update([
+                'dapur_sales_note_locked_at' => now(),
+                'dapur_sales_note_locked_by' => Auth::id(),
+            ]);
+        });
+
+        ActivityLogger::log(
+            'order.dapur_sales_note_finalized',
+            'Dapur mengunci nota penjualan gudang untuk order #' . $order->id,
+            $order
+        );
+
+        return back()->with('success', 'Nota sudah fix dan terkunci. Sekarang nota bisa dicetak.');
+    }
+
+    public function sendDapurReplacement(Request $request, Order $order)
+    {
+        if (!in_array(Auth::user()->role, ['admin', 'superadmin'], true)) {
+            abort(403);
+        }
+
+        if ($order->order_type !== 'dapur_sale') {
+            abort(404);
+        }
+
+        if ($order->dapur_sales_note_locked_at) {
+            return back()->with('error', 'Nota sudah terkunci, tidak bisa proses pengiriman kekurangan.');
+        }
+
+        $validated = $request->validate([
+            'items' => 'required|array',
+            'items.*.id' => 'required|exists:order_items,id',
+            'items.*.send_quantity' => 'nullable|integer|min:0',
+            'admin_note' => 'nullable|string|max:1000',
+        ]);
+
+        $totalSent = 0;
+
+        DB::transaction(function () use ($order, $validated, &$totalSent) {
+            $order->load('orderItems.product');
+            $itemMap = $order->orderItems->keyBy('id');
+
+            foreach ($validated['items'] as $payload) {
+                $sendQty = (int) ($payload['send_quantity'] ?? 0);
+                if ($sendQty <= 0) {
+                    continue;
+                }
+
+                $item = $itemMap->get((int) $payload['id']);
+                if (!$item || !$item->product) {
+                    continue;
+                }
+
+                $orderedQty = (int) $item->quantity;
+                $currentFinal = (int) ($item->dapur_final_quantity ?? $orderedQty);
+                $remainingShortage = max($orderedQty - $currentFinal, 0);
+
+                if ($remainingShortage <= 0) {
+                    continue;
+                }
+
+                $actualSendQty = min($sendQty, $remainingShortage);
+
+                if ((int) $item->product->warehouse_stock < $actualSendQty) {
+                    throw new \Exception('Stok gudang belum cukup untuk kirim kekurangan produk ' . $item->product->name . '.');
+                }
+
+                $item->product->decrement('warehouse_stock', $actualSendQty);
+                $item->update([
+                    'dapur_final_quantity' => $currentFinal + $actualSendQty,
+                ]);
+
+                $totalSent += $actualSendQty;
+            }
+
+            if (!empty($validated['admin_note'])) {
+                $order->update(['admin_note' => $validated['admin_note']]);
+            }
+
+            if ($totalSent > 0) {
+                $order->update(['shipping_status' => 'shipped']);
+            }
+        });
+
+        if ($totalSent <= 0) {
+            return back()->with('error', 'Tidak ada qty kekurangan yang dikirim.');
+        }
+
+        ActivityLogger::log(
+            'order.dapur_replacement_sent',
+            'Admin mengirim kekurangan barang untuk order #' . $order->id,
+            $order,
+            ['sent_quantity_total' => $totalSent]
+        );
+
+        return back()->with('success', 'Pengiriman kekurangan berhasil diproses. Dapur bisa review ulang di nota yang sama.');
+    }
+
+    public function printDapurSalesNote(Order $order)
+    {
+        if (Auth::user()->role !== 'dapur') {
+            abort(403);
+        }
+
+        if ((int) $order->user_id !== (int) Auth::id() || $order->order_type !== 'dapur_sale') {
+            abort(403);
+        }
+
+        if (!$order->dapur_sales_note_locked_at) {
+            return back()->with('error', 'Nota belum fix. Silakan finalisasi dulu sebelum cetak.');
+        }
+
+        $order->load(['user', 'orderItems.product.supplier']);
+
         return view('orders.dapur_sales_note', [
             'order' => $order,
             'sellerName' => 'Gudang',
@@ -162,6 +366,7 @@ class OrderController extends Controller
                 'total_price' => 0, // Will update below
                 'status' => 'pending',
                 'shipping_status' => 'pending',
+                'warehouse_stock_deducted_at' => now(),
                 'note' => $request->note ?? '-'
             ]);
 
@@ -460,6 +665,39 @@ class OrderController extends Controller
             'status' => 'required|in:pending,processed,completed,cancelled'
         ]);
 
+        // For auto replacement orders, deduct warehouse stock when admin starts processing.
+        if (
+            $order->order_type === 'dapur_sale'
+            && $order->source_dapur_order_id
+            && $validated['status'] === 'processed'
+            && $order->warehouse_stock_deducted_at === null
+        ) {
+            $order->load('orderItems.product');
+
+            foreach ($order->orderItems as $item) {
+                if (!$item->product) {
+                    continue;
+                }
+
+                if ((int) $item->product->warehouse_stock < (int) $item->quantity) {
+                    return back()->with('error', 'Stok gudang belum cukup untuk kirim susulan produk ' . $item->product->name . '. Buat PO supplier dulu.');
+                }
+            }
+
+            foreach ($order->orderItems as $item) {
+                if (!$item->product) {
+                    continue;
+                }
+
+                $item->product->decrement('warehouse_stock', (int) $item->quantity);
+            }
+
+            $order->update([
+                'warehouse_stock_deducted_at' => now(),
+                'shipping_status' => 'prepared',
+            ]);
+        }
+
         // If cancelling, restore or rollback stock based on order type.
         if ($validated['status'] === 'cancelled' && $order->status !== 'cancelled') {
             foreach ($order->orderItems as $item) {
@@ -468,7 +706,10 @@ class OrderController extends Controller
                 }
 
                 if ($order->order_type === 'dapur_sale') {
-                    $item->product->increment('warehouse_stock', $item->quantity);
+                    $shouldRestoreStock = $order->warehouse_stock_deducted_at !== null || !$order->source_dapur_order_id;
+                    if ($shouldRestoreStock) {
+                        $item->product->increment('warehouse_stock', $item->quantity);
+                    }
                 }
 
                 if ($order->order_type === 'supplier_purchase' && $order->status === 'completed') {
@@ -501,6 +742,8 @@ class OrderController extends Controller
             abort(404);
         }
 
+        $order->load(['user', 'orderItems.product']);
+
         return view('orders.operational', compact('order'));
     }
 
@@ -510,75 +753,32 @@ class OrderController extends Controller
             abort(403);
         }
 
-        $request->merge([
-            'operational_bensin' => $this->normalizeNominalInput($request->input('operational_bensin')),
-            'operational_kuli' => $this->normalizeNominalInput($request->input('operational_kuli')),
-            'operational_makan_minum' => $this->normalizeNominalInput($request->input('operational_makan_minum')),
-            'operational_listrik' => $this->normalizeNominalInput($request->input('operational_listrik')),
-            'operational_wifi' => $this->normalizeNominalInput($request->input('operational_wifi')),
-        ]);
-
         if ($order->order_type !== 'dapur_sale') {
             abort(404);
         }
 
         $validated = $request->validate([
-            'operational_bensin' => 'nullable|numeric|min:0',
-            'operational_kuli' => 'nullable|numeric|min:0',
-            'operational_makan_minum' => 'nullable|numeric|min:0',
-            'operational_listrik' => 'nullable|numeric|min:0',
-            'operational_wifi' => 'nullable|numeric|min:0',
             'admin_note' => 'nullable|string|max:1000',
             'drop_date' => 'nullable|date',
             'shipping_status' => 'required|in:pending,prepared,shipped,delivered,cancelled',
-            'extra_labels' => 'nullable|array',
-            'extra_labels.*' => 'nullable|string|max:100',
-            'extra_amounts' => 'nullable|array',
-            'extra_amounts.*' => 'nullable|string',
         ]);
 
-        $extraLabels = $request->input('extra_labels', []);
-        $extraAmounts = $request->input('extra_amounts', []);
-        $operationalExtras = [];
-
-        foreach ($extraLabels as $idx => $label) {
-            $label = trim((string) $label);
-            $rawAmount = $extraAmounts[$idx] ?? null;
-            $normalized = $this->normalizeNominalInput($rawAmount);
-            $amount = $normalized !== null ? (float) $normalized : 0;
-
-            if ($label === '' && $amount <= 0) {
-                continue;
-            }
-
-            $operationalExtras[] = [
-                'label' => $label === '' ? 'Operasional Lainnya' : $label,
-                'amount' => $amount,
-            ];
-        }
-
         $payload = [
-            'operational_bensin' => (float) ($validated['operational_bensin'] ?? 0),
-            'operational_kuli' => (float) ($validated['operational_kuli'] ?? 0),
-            'operational_makan_minum' => (float) ($validated['operational_makan_minum'] ?? 0),
-            'operational_listrik' => (float) ($validated['operational_listrik'] ?? 0),
-            'operational_wifi' => (float) ($validated['operational_wifi'] ?? 0),
             'admin_note' => $validated['admin_note'] ?? null,
             'drop_date' => $validated['drop_date'] ?? null,
             'shipping_status' => $validated['shipping_status'],
-            'operational_extras' => $operationalExtras,
         ];
 
         $order->update($payload);
 
         ActivityLogger::log(
             'order.operational_updated',
-            'Biaya operasional order #' . $order->id . ' diperbarui',
+            'Detail proses order #' . $order->id . ' diperbarui',
             $order,
             $payload
         );
 
-        return redirect()->route('admin.orders.index', ['order_type' => 'dapur_sale'])->with('success', 'Biaya operasional order berhasil disimpan.');
+        return redirect()->route('admin.orders.index', ['order_type' => 'dapur_sale'])->with('success', 'Detail proses order berhasil disimpan.');
     }
 
     public function invoice(Order $order)
@@ -816,34 +1016,4 @@ class OrderController extends Controller
         return 'Drop pada Hari ' . Carbon::parse($order->drop_date)->locale('id')->translatedFormat('l, j F Y');
     }
 
-    private function normalizeNominalInput($value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $raw = trim((string) $value);
-        if ($raw === '') {
-            return null;
-        }
-
-        if (preg_match('/^\d{1,3}(\.\d{3})+$/', $raw)) {
-            $clean = str_replace('.', '', $raw);
-            return $clean === '' ? null : $clean;
-        }
-
-        if (preg_match('/^\d{1,3}(,\d{3})+$/', $raw)) {
-            $clean = str_replace(',', '', $raw);
-            return $clean === '' ? null : $clean;
-        }
-
-        if (preg_match('/^\d+[\.,]\d+$/', $raw)) {
-            $number = (float) str_replace(',', '.', $raw);
-            return (string) round($number);
-        }
-
-        $clean = preg_replace('/[^0-9]/', '', $raw);
-
-        return $clean === '' ? null : $clean;
-    }
 }

@@ -10,6 +10,7 @@ class OrderItem extends Model
 
     protected $casts = [
         'supplier_approved_at' => 'datetime',
+        'dapur_final_quantity' => 'integer',
     ];
 
     public function product()

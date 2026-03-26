@@ -43,6 +43,7 @@ Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->name('adm
     Route::get('/orders/supplier-purchase/invoice/daily', [OrderController::class, 'supplierDailyInvoice'])->name('orders.supplier-purchase.invoice-daily');
     Route::get('/orders/dapur-purchase-note', [OrderController::class, 'dapurPurchaseNoteByPeriod'])->name('orders.dapur-purchase-note');
     Route::patch('/orders/{order}/receive', [OrderController::class, 'receiveSupplierPurchase'])->name('orders.receive');
+    Route::patch('/orders/{order}/send-replacement', [OrderController::class, 'sendDapurReplacement'])->name('orders.send-replacement');
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
     Route::patch('/orders/{order}', [OrderController::class, 'updateStatus'])->name('orders.update-status');
 
@@ -54,6 +55,7 @@ Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->name('adm
     // Finance & Salary Distribution
     Route::middleware('role:admin')->group(function () {
         Route::get('/finance', [FinanceController::class, 'index'])->name('finance.index');
+        Route::get('/finance/export/spreadsheet', [FinanceController::class, 'exportSpreadsheet'])->name('finance.export.spreadsheet');
         Route::post('/finance/distribution', [FinanceController::class, 'storeDistribution'])->name('finance.distribution.store');
     });
 
@@ -86,6 +88,9 @@ Route::middleware(['auth', 'role:dapur'])->prefix('dapur')->name('dapur.')->grou
     Route::get('/orders', [OrderController::class, 'dapurIndex'])->name('orders.my_orders'); // View order history (changed name slightly to avoid conflict if any, but index is standard)
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
     Route::get('/orders/{order}/sales-note', [OrderController::class, 'dapurSalesNote'])->name('orders.sales-note');
+    Route::patch('/orders/{order}/sales-note', [OrderController::class, 'updateDapurSalesNote'])->name('orders.sales-note.update');
+    Route::patch('/orders/{order}/sales-note/finalize', [OrderController::class, 'finalizeDapurSalesNote'])->name('orders.sales-note.finalize');
+    Route::get('/orders/{order}/sales-note/print', [OrderController::class, 'printDapurSalesNote'])->name('orders.sales-note.print');
 });
 
 Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
@@ -93,6 +98,9 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     Route::get('/insights/print/{period}', [InsightController::class, 'printPeriod'])
         ->whereIn('period', ['daily', 'weekly', 'monthly'])
         ->name('insights.print');
+    Route::get('/insights/export/{period}', [InsightController::class, 'exportSpreadsheet'])
+        ->whereIn('period', ['daily', 'weekly', 'monthly'])
+        ->name('insights.export');
 });
 
 require __DIR__.'/auth.php';

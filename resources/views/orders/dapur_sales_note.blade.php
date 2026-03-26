@@ -31,8 +31,10 @@
         <div><strong>Penjual:</strong> {{ $sellerName }}</div>
         <div><strong>Pembeli:</strong> {{ $order->user->name ?? 'Mitra Dapur' }}</div>
         <div><strong>Tanggal:</strong> {{ $order->created_at->format('d M Y H:i') }}</div>
+        <div><strong>Tanggal Fix:</strong> {{ optional($order->dapur_sales_note_locked_at)->format('d M Y H:i') ?? '-' }}</div>
         <div><strong>Status:</strong> {{ ucfirst($order->status) }}</div>
         <div><strong>Catatan:</strong> {{ $order->note ?: '-' }}</div>
+        <div><strong>Catatan Penyesuaian Dapur:</strong> {{ $order->dapur_adjustment_note ?: '-' }}</div>
     </div>
 
     @php $grandTotal = 0; @endphp
@@ -41,26 +43,31 @@
             <tr>
                 <th>Nama barang</th>
                 <th>Spesifikasi</th>
-                <th class="right">Qty</th>
+                <th class="right">Qty Order</th>
+                <th class="right">Qty Final</th>
                 <th>Satuan</th>
                 <th class="right">Harga Satuan</th>
                 <th class="right">Jumlah</th>
+                <th>Catatan Dapur</th>
             </tr>
         </thead>
         <tbody>
             @foreach($order->orderItems as $item)
                 @php
                     $price = (float) ($item->price ?? 0);
-                    $subtotal = $price * (int) $item->quantity;
+                    $finalQuantity = (int) ($item->dapur_final_quantity ?? $item->quantity);
+                    $subtotal = $price * $finalQuantity;
                     $grandTotal += $subtotal;
                 @endphp
                 <tr>
                     <td>{{ $item->product->name ?? 'Produk Dihapus' }}</td>
                     <td>{{ \Illuminate\Support\Str::limit($item->product->description ?? '-', 70) }}</td>
                     <td class="right">{{ $item->quantity }}</td>
+                    <td class="right">{{ $finalQuantity }}</td>
                     <td>{{ strtoupper($item->product->unit ?? 'pcs') }}</td>
                     <td class="right">Rp {{ number_format($price, 0, ',', '.') }}</td>
                     <td class="right">Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
+                    <td>{{ $item->dapur_item_note ?: '-' }}</td>
                 </tr>
             @endforeach
         </tbody>
