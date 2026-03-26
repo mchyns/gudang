@@ -80,12 +80,12 @@
                     <div class="p-6 rounded-lg shadow-sm border border-blue-100 bg-blue-50">
                         <h3 class="font-bold text-blue-800 mb-2">Order Masuk (Dapur)</h3>
                         <p class="text-sm text-blue-600 mb-4">Kelola pesanan dari mitra dapur yang perlu diproses.</p>
-                        <a href="{{ route('admin.orders.index') }}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">Lihat Order</a>
+                        <a href="{{ route('admin.orders.index', ['order_type' => 'dapur_sale']) }}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">Lihat Order</a>
                     </div>
                     <div class="p-6 rounded-lg shadow-sm border border-green-100 bg-green-50">
                         <h3 class="font-bold text-green-800 mb-2">Manajemen Stok</h3>
-                        <p class="text-sm text-green-600 mb-4">Cek stok menipis dan lakukan restock ke supplier.</p>
-                        <a href="{{ route('admin.products.index') }}" class="inline-block bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700">Cek Stok</a>
+                        <p class="text-sm text-green-600 mb-4">Gudang bisa belanja barang dari banyak supplier dalam satu nota.</p>
+                        <a href="{{ route('admin.orders.supplier-purchase.create') }}" class="inline-block bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700">Belanja ke Supplier</a>
                     </div>
                     <div class="p-6 rounded-lg shadow-sm border border-purple-100 bg-purple-50">
                         <h3 class="font-bold text-purple-800 mb-2">Penetapan Harga</h3>
@@ -107,10 +107,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach(\App\Models\Product::where('stock', '<', 20)->take(5)->get() as $item)
+                                    @foreach(\App\Models\Product::where('warehouse_stock', '<', 20)->whereHas('orderItems.order', function ($query) { $query->where('order_type', 'supplier_purchase')->where('status', 'completed'); })->take(5)->get() as $item)
                                     <tr class="border-b">
                                         <td class="px-4 py-2 font-medium">{{ $item->name }}</td>
-                                        <td class="px-4 py-2 text-red-600 font-bold">{{ $item->stock }}</td>
+                                        <td class="px-4 py-2 text-red-600 font-bold">{{ $item->warehouse_stock }}</td>
                                         <td class="px-4 py-2">{{ $item->supplier->name ?? '-' }}</td>
                                     </tr>
                                     @endforeach
@@ -132,15 +132,21 @@
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-lg font-bold">Barang Yang Saya Jual</h3>
-                                <a href="{{ route('supplier.products.create') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-sm">
-                                + Tambah Barang Baru
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('supplier.products.index') }}" class="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-200 border border-slate-200">
+                                    Produk Saya
                                 </a>
+                                <a href="{{ route('supplier.products.create') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-sm">
+                                    + Tambah Barang Baru
+                                </a>
+                            </div>
                         </div>
                         
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm text-left">
                                 <thead class="bg-gray-50 text-gray-700 uppercase">
                                     <tr>
+                                        <th class="px-6 py-3">Gambar</th>
                                         <th class="px-6 py-3">Nama Barang</th>
                                         <th class="px-6 py-3">Kategori</th>
                                         <th class="px-6 py-3">Harga Jual (Saya)</th>
@@ -150,6 +156,13 @@
                                 <tbody>
                                     @forelse(\App\Models\Product::where('supplier_id', Auth::id())->get() as $product)
                                     <tr class="bg-white border-b hover:bg-gray-50">
+                                        <td class="px-6 py-4">
+                                            @if($product->image_url)
+                                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="h-12 w-12 object-cover rounded border border-gray-200" loading="lazy">
+                                            @else
+                                                <div class="h-12 w-12 rounded border border-dashed border-gray-300 bg-gray-50"></div>
+                                            @endif
+                                        </td>
                                         <td class="px-6 py-4 font-medium text-gray-900">{{ $product->name }}</td>
                                         <td class="px-6 py-4">{{ $product->category->name ?? '-' }}</td>
                                         <td class="px-6 py-4">Rp {{ number_format($product->supplier_price, 0, ',', '.') }}</td>
@@ -161,7 +174,7 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
                                             Belum ada barang yang diinput. Silakan tambah barang.
                                         </td>
                                     </tr>
@@ -170,52 +183,12 @@
                             </table>
                         </div>
 
-                        <div class="mt-8">
-                            <h4 class="text-base font-bold mb-3">Nota Terkait Supplier Saya</h4>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm text-left">
-                                    <thead class="bg-gray-50 text-gray-700 uppercase">
-                                        <tr>
-                                            <th class="px-4 py-2">Order</th>
-                                            <th class="px-4 py-2">Tanggal</th>
-                                            <th class="px-4 py-2">Penerima</th>
-                                            <th class="px-4 py-2">Catatan Supplier ke Gudang</th>
-                                            <th class="px-4 py-2">Status</th>
-                                            <th class="px-4 py-2 text-right">Nota</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php
-                                            $supplierOrders = \App\Models\Order::whereHas('orderItems.product', function ($q) {
-                                                $q->where('supplier_id', Auth::id());
-                                            })->latest()->take(8)->get();
-                                        @endphp
-                                        @forelse($supplierOrders as $order)
-                                            <tr class="border-b">
-                                                <td class="px-4 py-2">#{{ $order->id }}</td>
-                                                <td class="px-4 py-2">{{ $order->created_at->format('d M Y H:i') }}</td>
-                                                <td class="px-4 py-2">Gudang</td>
-                                                <td class="px-4 py-2 min-w-[280px]">
-                                                    <form action="{{ route('supplier.orders.update-note', $order) }}" method="POST" class="flex gap-2 items-center">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <input type="text" name="supplier_note" value="{{ old('supplier_note', $order->supplier_note) }}" class="w-full border-gray-300 rounded-md text-xs" placeholder="Catatan untuk gudang (opsional)">
-                                                        <button type="submit" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-[11px] font-semibold text-slate-700 whitespace-nowrap">Simpan</button>
-                                                    </form>
-                                                </td>
-                                                <td class="px-4 py-2">{{ ucfirst($order->status) }}</td>
-                                                <td class="px-4 py-2 text-right">
-                                                    <a href="{{ route('supplier.orders.invoice', $order->id) }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-semibold">Lihat Nota</a>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="6" class="px-4 py-3 text-center text-gray-500">Belum ada nota untuk supplier ini.</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                        <div class="mt-8 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <h4 class="text-base font-bold text-indigo-900">Nota Penjualan Supplier</h4>
+                                <p class="text-sm text-indigo-700">Daftar nota dipisah ke halaman khusus agar dashboard tidak menumpuk.</p>
                             </div>
+                            <a href="{{ route('supplier.notes.index') }}" class="ui-btn-primary text-sm whitespace-nowrap">Buka Halaman Nota</a>
                         </div>
                     </div>
                 </div>

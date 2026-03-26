@@ -8,6 +8,10 @@ class OrderItem extends Model
 {
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'supplier_approved_at' => 'datetime',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class);
@@ -16,5 +20,10 @@ class OrderItem extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function supplierApprover()
+    {
+        return $this->belongsTo(User::class, 'supplier_approved_by');
     }
 }

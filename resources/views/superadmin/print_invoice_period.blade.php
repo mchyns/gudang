@@ -63,6 +63,9 @@
                         + ($order->operational_listrik ?? 0)
                         + ($order->operational_wifi ?? 0)
                     );
+                    $opsPerOrder += collect($order->operational_extras ?? [])->sum(function ($extra) {
+                        return (float) ($extra['amount'] ?? 0);
+                    });
                     $grossPerOrder = ($supplierTotalPerOrder + $opsPerOrder) - (float) $order->total_price;
                 @endphp
                 <tr>

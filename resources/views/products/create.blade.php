@@ -47,8 +47,9 @@
                             </div>
 
                             <div class="mb-4">
-                                <label class="block text-gray-700 text-sm font-bold mb-2">Stok Awal</label>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Stok Supplier Tersedia</label>
                                 <input type="number" name="stock" value="{{ old('stock') }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <p class="text-xs text-gray-500 mt-1">Stok ini milik supplier. Stok gudang tetap 0 sampai ada pesanan dan barang diterima gudang.</p>
                                 @error('stock') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
                         </div>

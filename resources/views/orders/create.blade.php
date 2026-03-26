@@ -52,7 +52,7 @@
                         @else
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 @foreach($products as $product)
-                                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow relative {{ $product->stock <= 0 ? 'opacity-50 bg-gray-100' : 'bg-white' }}">
+                                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow relative {{ $product->warehouse_stock <= 0 ? 'opacity-50 bg-gray-100' : 'bg-white' }}">
                                     @if($product->image_url)
                                         <div class="h-36 bg-gray-100 rounded-lg mb-3 overflow-hidden">
                                             <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'; this.parentElement.nextElementSibling.style.display='flex';">
@@ -83,16 +83,16 @@
                                     
                                     <div class="flex justify-between items-center mt-auto">
                                         <div class="text-sm">
-                                            Stok: <span class="font-bold {{ $product->stock < 5 ? 'text-red-600' : 'text-green-600' }}">{{ $product->stock }}</span>
+                                            Stok Gudang: <span class="font-bold {{ $product->warehouse_stock < 5 ? 'text-red-600' : 'text-green-600' }}">{{ $product->warehouse_stock }}</span>
                                         </div>
 
-                                        @if($product->stock > 0)
+                                        @if($product->warehouse_stock > 0)
                                             <div class="flex items-center space-x-2">
                                                 <input type="hidden" name="items[{{ $loop->index }}][product_id]" value="{{ $product->id }}" disabled class="product-id-input">
                                                 <input type="number" 
                                                     name="items[{{ $loop->index }}][quantity]" 
                                                     min="0" 
-                                                    max="{{ $product->stock }}" 
+                                                    max="{{ $product->warehouse_stock }}" 
                                                     class="w-20 border rounded px-2 py-1 text-right quantity-input" 
                                                     placeholder="0"
                                                     data-index="{{ $loop->index }}">

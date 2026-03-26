@@ -24,7 +24,12 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-5">
+                @php
+                    $keuntungan = max($labaKotor, 0);
+                    $kerugian = max($labaKotor * -1, 0);
+                @endphp
+
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-5">
                     <div class="ui-kpi bg-amber-50 border-amber-100">
                         <p class="text-xs uppercase text-amber-700">Harga Beli Supplier</p>
                         <p class="text-lg font-bold text-amber-800">Rp {{ number_format($hargaBeliSupplier, 0, ',', '.') }}</p>
@@ -37,9 +42,13 @@
                         <p class="text-xs uppercase text-emerald-700">Harga Beli Dapur</p>
                         <p class="text-lg font-bold text-emerald-800">Rp {{ number_format($hargaBeliDapur, 0, ',', '.') }}</p>
                     </div>
-                    <div class="ui-kpi {{ $labaKotor >= 0 ? 'bg-indigo-50 border-indigo-100' : 'bg-rose-50 border-rose-100' }}">
-                        <p class="text-xs uppercase {{ $labaKotor >= 0 ? 'text-indigo-700' : 'text-rose-700' }}">{{ $labaKotor >= 0 ? 'Keuntungan (Laba Kotor)' : 'Kerugian (Laba Kotor)' }}</p>
-                        <p class="text-lg font-bold {{ $labaKotor >= 0 ? 'text-indigo-800' : 'text-rose-800' }}">Rp {{ number_format($labaKotor, 0, ',', '.') }}</p>
+                    <div class="ui-kpi bg-indigo-50 border-indigo-100">
+                        <p class="text-xs uppercase text-indigo-700">Keuntungan (Laba Kotor)</p>
+                        <p class="text-lg font-bold text-indigo-800">Rp {{ number_format($keuntungan, 0, ',', '.') }}</p>
+                    </div>
+                    <div class="ui-kpi bg-rose-50 border-rose-100">
+                        <p class="text-xs uppercase text-rose-700">Kerugian (Laba Kotor)</p>
+                        <p class="text-lg font-bold text-rose-800">Rp {{ number_format($kerugian, 0, ',', '.') }}</p>
                     </div>
                 </div>
                 <p class="text-xs text-gray-500 mt-3">Rumus: H.B.S + Operasional - Harga Beli Dapur.</p>

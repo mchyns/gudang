@@ -83,9 +83,17 @@
                         <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
                             {{ __('Kelola Produk') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
-                            {{ __('Kelola Pesanan') }}
+                        <x-nav-link :href="route('admin.orders.index', ['order_type' => 'dapur_sale'])" :active="request()->routeIs('admin.orders.index') && request('order_type', 'dapur_sale') === 'dapur_sale'">
+                            {{ __('Pesanan Dapur') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.orders.index', ['order_type' => 'supplier_purchase'])" :active="request()->routeIs('admin.orders.index') && request('order_type') === 'supplier_purchase'">
+                            {{ __('Pesanan Supplier') }}
+                        </x-nav-link>
+                        @if(Auth::user()->hasRole('admin'))
+                            <x-nav-link :href="route('admin.orders.supplier-purchase.create')" :active="request()->routeIs('admin.orders.supplier-purchase.*')">
+                                {{ __('Belanja Supplier') }}
+                            </x-nav-link>
+                        @endif
                         <x-nav-link :href="route('admin.partners.index')" :active="request()->routeIs('admin.partners.*')">
                             {{ __('Daftar Mitra') }}
                         </x-nav-link>
@@ -94,6 +102,18 @@
                                 {{ __('Laba & Gaji') }}
                             </x-nav-link>
                         @endif
+                    @endif
+
+                    @if(Auth::user()->hasRole('supplier'))
+                        <x-nav-link :href="route('supplier.products.index')" :active="request()->routeIs('supplier.products.index') || request()->routeIs('supplier.products.edit')">
+                            {{ __('Produk Saya') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('supplier.products.create')" :active="request()->routeIs('supplier.products.create')">
+                            {{ __('Tambah Produk') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('supplier.notes.index')" :active="request()->routeIs('supplier.notes.*')">
+                            {{ __('Nota Supplier') }}
+                        </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -151,9 +171,17 @@
                 <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
                     {{ __('Kelola Produk') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
-                    {{ __('Kelola Pesanan') }}
+                <x-responsive-nav-link :href="route('admin.orders.index', ['order_type' => 'dapur_sale'])" :active="request()->routeIs('admin.orders.index') && request('order_type', 'dapur_sale') === 'dapur_sale'">
+                    {{ __('Pesanan Dapur') }}
                 </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.orders.index', ['order_type' => 'supplier_purchase'])" :active="request()->routeIs('admin.orders.index') && request('order_type') === 'supplier_purchase'">
+                    {{ __('Pesanan Supplier') }}
+                </x-responsive-nav-link>
+                @if(Auth::user()->hasRole('admin'))
+                    <x-responsive-nav-link :href="route('admin.orders.supplier-purchase.create')" :active="request()->routeIs('admin.orders.supplier-purchase.*')">
+                        {{ __('Belanja Supplier') }}
+                    </x-responsive-nav-link>
+                @endif
                 <x-responsive-nav-link :href="route('admin.partners.index')" :active="request()->routeIs('admin.partners.*')">
                     {{ __('Daftar Mitra') }}
                 </x-responsive-nav-link>
@@ -162,6 +190,18 @@
                         {{ __('Laba & Gaji') }}
                     </x-responsive-nav-link>
                 @endif
+            @endif
+
+            @if(Auth::user()->hasRole('supplier'))
+                <x-responsive-nav-link :href="route('supplier.products.index')" :active="request()->routeIs('supplier.products.index') || request()->routeIs('supplier.products.edit')">
+                    {{ __('Produk Saya') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('supplier.products.create')" :active="request()->routeIs('supplier.products.create')">
+                    {{ __('Tambah Produk') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('supplier.notes.index')" :active="request()->routeIs('supplier.notes.*')">
+                    {{ __('Nota Supplier') }}
+                </x-responsive-nav-link>
             @endif
 
             <div class="mt-4 pt-4 border-t border-white/10">

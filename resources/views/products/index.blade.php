@@ -27,10 +27,13 @@
                         <table class="min-w-[1200px] w-full divide-y divide-gray-200 ui-table">
                             <thead>
                                 <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gambar</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Produk</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satuan</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        {{ Auth::user()->role === 'supplier' ? 'Stok Supplier' : 'Stok Gudang' }}
+                                    </th>
                                     @if(Auth::user()->hasRole(['admin', 'superadmin']))
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok Awal</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Masuk</th>
@@ -48,6 +51,13 @@
                                 @foreach($products as $product)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($product->image_url)
+                                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="h-12 w-12 rounded object-cover border border-gray-200" loading="lazy">
+                                        @else
+                                            <div class="h-12 w-12 rounded border border-dashed border-gray-300 bg-gray-50"></div>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">{{ $product->name }}</div>
                                         <div class="text-sm text-gray-500">{{ Str::limit($product->description, 30) }}</div>
                                     </td>
@@ -58,13 +68,13 @@
                                         {{ $product->unit ?? 'pcs' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
-                                        {{ $product->stock }}
+                                        {{ Auth::user()->role === 'supplier' ? $product->stock : $product->warehouse_stock }}
                                     </td>
                                     @if(Auth::user()->hasRole(['admin', 'superadmin']))
                                         @php
-                                            $initial = $product->initial_stock ?? 0;
+                                            $initial = $product->warehouse_initial_stock ?? 0;
                                             $keluar = (int) ($product->total_keluar_qty ?? 0);
-                                            $masuk = max(($product->stock + $keluar) - $initial, 0);
+                                            $masuk = max(($product->warehouse_stock + $keluar) - $initial, 0);
                                         @endphp
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $initial }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-700 font-semibold">{{ $masuk }}</td>

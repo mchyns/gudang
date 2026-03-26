@@ -24,15 +24,46 @@
                         <span class="flex items-center"><span class="w-3 h-3 bg-red-100 border border-red-400 rounded-full mr-1"></span> Cancelled (Batal)</span>
                     </div>
 
+                    @if(Auth::user()->role === 'admin')
+                        <div class="mb-4 flex flex-wrap justify-between gap-3">
+                            <div class="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+                                <a
+                                    href="{{ route('admin.orders.index', ['order_type' => 'dapur_sale']) }}"
+                                    class="px-3 py-1.5 text-sm rounded-md {{ $activeOrderType === 'dapur_sale' ? 'bg-white text-indigo-700 shadow-sm font-semibold' : 'text-gray-600 hover:text-gray-800' }}"
+                                >
+                                    Kelola Pesanan Dapur
+                                </a>
+                                <a
+                                    href="{{ route('admin.orders.index', ['order_type' => 'supplier_purchase']) }}"
+                                    class="px-3 py-1.5 text-sm rounded-md {{ $activeOrderType === 'supplier_purchase' ? 'bg-white text-indigo-700 shadow-sm font-semibold' : 'text-gray-600 hover:text-gray-800' }}"
+                                >
+                                    Kelola Pembelian Supplier
+                                </a>
+                            </div>
+
+                            @if($activeOrderType === 'supplier_purchase')
+                                <a href="{{ route('admin.orders.supplier-purchase.create') }}" class="ui-btn-primary text-sm">Belanja Supplier</a>
+                            @else
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('admin.orders.dapur-purchase-note', ['period' => 'daily', 'date' => now()->toDateString()]) }}" target="_blank" class="ui-btn-ghost text-sm">Nota Harian</a>
+                                    <a href="{{ route('admin.orders.dapur-purchase-note', ['period' => 'weekly', 'date' => now()->toDateString()]) }}" target="_blank" class="ui-btn-ghost text-sm">Nota Mingguan</a>
+                                    <a href="{{ route('admin.orders.dapur-purchase-note', ['period' => 'monthly', 'date' => now()->toDateString()]) }}" target="_blank" class="ui-btn-ghost text-sm">Nota Bulanan</a>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
                     <div class="ui-table-wrap">
                         <table class="min-w-full divide-y divide-gray-200 ui-table">
                             <thead>
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pemesan</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detail Item</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengiriman</th>
                                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ubah Status</th>
                                 </tr>
                             </thead>
@@ -43,6 +74,13 @@
                                         #{{ $order->id }}
                                         <div class="text-xs text-gray-400">{{ $order->created_at->format('d M H:i') }}</div>
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        @if($order->order_type === 'supplier_purchase')
+                                            <span class="px-2 py-1 rounded-full text-xs bg-indigo-100 text-indigo-700">Pembelian Supplier</span>
+                                        @else
+                                            <span class="px-2 py-1 rounded-full text-xs bg-emerald-100 text-emerald-700">Penjualan Dapur</span>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 text-sm text-gray-500">
                                         {{ $order->user->name ?? 'User Hapus' }} <br>
                                         @if(($order->user->role ?? null) === 'dapur')
@@ -50,6 +88,9 @@
                                             <span class="block text-xs text-gray-600">Alamat: {{ $order->user->address ?: '-' }}</span>
                                         @endif
                                         <span class="text-xs italic">{{ $order->note }}</span>
+                                        @if($order->admin_note)
+                                            <span class="block text-xs text-indigo-700 mt-1">Catatan Admin: {{ $order->admin_note }}</span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-500">
                                         <ul class="list-disc pl-4 text-xs">
@@ -77,26 +118,47 @@
                                             {{ ucfirst($order->status) }}
                                         </span>
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @php
+                                            $shippingBadges = [
+                                                'pending' => 'bg-gray-100 text-gray-700',
+                                                'prepared' => 'bg-amber-100 text-amber-700',
+                                                'shipped' => 'bg-blue-100 text-blue-700',
+                                                'delivered' => 'bg-emerald-100 text-emerald-700',
+                                                'cancelled' => 'bg-rose-100 text-rose-700',
+                                            ];
+                                        @endphp
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $shippingBadges[$order->shipping_status ?? 'pending'] ?? 'bg-gray-100 text-gray-700' }}">
+                                            {{ ucfirst($order->shipping_status ?? 'pending') }}
+                                        </span>
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        @if(Auth::user()->role === 'admin')
-                                            <a href="{{ route('admin.orders.operational.edit', $order->id) }}" class="text-amber-600 hover:text-amber-800 text-xs mb-1 inline-block">Biaya Ops</a><br>
+                                        @if(Auth::user()->role === 'admin' && $order->order_type === 'dapur_sale')
+                                            <a href="{{ route('admin.orders.operational.edit', $order->id) }}" class="text-amber-600 hover:text-amber-800 text-xs mb-1 inline-block">Detail Proses</a><br>
                                         @endif
                                         <a href="{{ route('admin.orders.invoice', $order->id) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-xs mb-1 inline-block">Cetak Nota</a>
 
                                         @if($order->status !== 'cancelled' && $order->status !== 'completed')
                                         <div class="flex flex-col space-y-1 items-end">
-                                            @if($order->status === 'pending')
+                                            @if($order->status === 'pending' && $order->order_type === 'dapur_sale')
                                                 <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST">
                                                     @csrf @method('PATCH')
                                                     <button name="status" value="processed" class="text-blue-600 hover:text-blue-900 text-xs bg-blue-50 px-2 py-1 rounded border border-blue-200">
                                                         Proses &rarr;
                                                     </button>
                                                 </form>
-                                            @elseif($order->status === 'processed')
+                                            @elseif($order->status === 'processed' && $order->order_type === 'dapur_sale')
                                                 <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST">
                                                     @csrf @method('PATCH')
                                                     <button name="status" value="completed" class="text-green-600 hover:text-green-900 text-xs bg-green-50 px-2 py-1 rounded border border-green-200">
                                                         Selesaikan &check;
+                                                    </button>
+                                                </form>
+                                            @elseif($order->status === 'processed' && $order->order_type === 'supplier_purchase')
+                                                <form action="{{ route('admin.orders.receive', $order->id) }}" method="POST" onsubmit="return confirm('Konfirmasi barang sudah diterima di gudang?');">
+                                                    @csrf @method('PATCH')
+                                                    <button type="submit" class="text-emerald-700 hover:text-emerald-900 text-xs bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                                                        Terima Barang di Gudang
                                                     </button>
                                                 </form>
                                             @endif
@@ -115,7 +177,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                                         Belum ada pesanan masuk.
                                     </td>
                                 </tr>

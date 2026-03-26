@@ -22,6 +22,7 @@ class FinanceController extends Controller
         [$start, $end, $periodLabel, $periodType] = $this->resolvePeriod($request);
 
         $orderQuery = Order::query()
+            ->where('order_type', 'dapur_sale')
             ->whereIn('status', ['processed', 'completed'])
             ->whereBetween('created_at', [$start, $end]);
 
@@ -30,16 +31,31 @@ class FinanceController extends Controller
         $hargaBeliSupplier = (float) OrderItem::query()
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->join('products', 'products.id', '=', 'order_items.product_id')
+            ->where('orders.order_type', 'dapur_sale')
             ->whereIn('orders.status', ['processed', 'completed'])
             ->whereBetween('orders.created_at', [$start, $end])
             ->selectRaw('SUM(order_items.quantity * products.supplier_price) as total_supplier')
             ->value('total_supplier');
 
         $operasionalTotal = (float) Order::query()
+            ->where('order_type', 'dapur_sale')
             ->whereIn('status', ['processed', 'completed'])
             ->whereBetween('created_at', [$start, $end])
             ->selectRaw('SUM(operational_bensin + operational_kuli + operational_makan_minum + operational_listrik + operational_wifi) as total_operasional')
             ->value('total_operasional');
+
+        $extraOperationalTotal = Order::query()
+            ->where('order_type', 'dapur_sale')
+            ->whereIn('status', ['processed', 'completed'])
+            ->whereBetween('created_at', [$start, $end])
+            ->get(['operational_extras'])
+            ->sum(function ($order) {
+                return collect($order->operational_extras ?? [])->sum(function ($extra) {
+                    return (float) ($extra['amount'] ?? 0);
+                });
+            });
+
+        $operasionalTotal += (float) $extraOperationalTotal;
 
         $labaKotor = ($hargaBeliSupplier + $operasionalTotal) - $hargaBeliDapur;
 

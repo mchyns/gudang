@@ -27,15 +27,20 @@ class ProductController extends Controller
                 ->latest()
                 ->get();
         } elseif ($role === 'admin' || $role === 'superadmin') {
-            // Admin sees all products
+            // Admin only manages products that have entered warehouse flow via supplier purchase.
             $products = Product::with(['supplier', 'category'])
                 ->withSum([
                     'orderItems as total_keluar_qty' => function ($query) {
                         $query->whereHas('order', function ($orderQuery) {
-                            $orderQuery->whereIn('status', ['pending', 'processed', 'completed']);
+                            $orderQuery->where('order_type', 'dapur_sale')
+                                ->whereIn('status', ['pending', 'processed', 'completed']);
                         });
                     }
                 ], 'quantity')
+                ->whereHas('orderItems.order', function ($orderQuery) {
+                    $orderQuery->where('order_type', 'supplier_purchase')
+                        ->where('status', 'completed');
+                })
                 ->latest()
                 ->get();
         }
@@ -85,6 +90,8 @@ class ProductController extends Controller
         $validated['status'] = 'active'; // Default active
         $validated['movement_type'] = 'slow';
         $validated['initial_stock'] = $validated['stock'];
+        $validated['warehouse_stock'] = 0;
+        $validated['warehouse_initial_stock'] = 0;
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('products', 'public');
@@ -98,7 +105,7 @@ class ProductController extends Controller
             'product.created',
             'Supplier menambahkan produk baru: ' . $product->name,
             $product,
-            ['supplier_price' => $product->supplier_price, 'stock' => $product->stock]
+            ['supplier_price' => $product->supplier_price, 'supplier_stock' => $product->stock, 'warehouse_stock' => $product->warehouse_stock]
         );
 
         return redirect()->route('supplier.products.index')->with('success', 'Produk berhasil ditambahkan.');
@@ -114,6 +121,19 @@ class ProductController extends Controller
         // Check permission
         if ($role === 'supplier' && $product->supplier_id !== Auth::id()) {
             abort(403);
+        }
+
+        if (in_array($role, ['admin', 'superadmin'], true)) {
+            $hasWarehouseFlow = $product->orderItems()
+                ->whereHas('order', function ($query) {
+                    $query->where('order_type', 'supplier_purchase')
+                        ->where('status', 'completed');
+                })
+                ->exists();
+
+            if (!$hasWarehouseFlow) {
+                abort(403, 'Produk ini belum masuk alur gudang. Silakan order ke supplier terlebih dahulu.');
+            }
         }
 
         $categories = Category::all();
@@ -163,12 +183,23 @@ class ProductController extends Controller
                 'product.updated_by_supplier',
                 'Supplier memperbarui produk: ' . $product->name,
                 $product,
-                ['stock' => $product->stock, 'supplier_price' => $product->supplier_price]
+                ['supplier_stock' => $product->stock, 'supplier_price' => $product->supplier_price]
             );
 
             return redirect()->route('supplier.products.index')->with('success', 'Produk berhasil diupdate.');
         
         } elseif ($role === 'admin' || $role === 'superadmin') {
+            $hasWarehouseFlow = $product->orderItems()
+                ->whereHas('order', function ($query) {
+                    $query->where('order_type', 'supplier_purchase')
+                        ->where('status', 'completed');
+                })
+                ->exists();
+
+            if (!$hasWarehouseFlow) {
+                abort(403, 'Produk ini belum masuk alur gudang. Silakan order ke supplier terlebih dahulu.');
+            }
+
             // Admin updates the selling price (Fix Price)
             $request->merge([
                 'price' => $this->normalizeNominalInput($request->input('price')),

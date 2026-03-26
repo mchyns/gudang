@@ -38,6 +38,11 @@ Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->name('adm
 
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/supplier-purchase/create', [OrderController::class, 'createSupplierPurchase'])->name('orders.supplier-purchase.create');
+    Route::post('/orders/supplier-purchase', [OrderController::class, 'storeSupplierPurchase'])->name('orders.supplier-purchase.store');
+    Route::get('/orders/supplier-purchase/invoice/daily', [OrderController::class, 'supplierDailyInvoice'])->name('orders.supplier-purchase.invoice-daily');
+    Route::get('/orders/dapur-purchase-note', [OrderController::class, 'dapurPurchaseNoteByPeriod'])->name('orders.dapur-purchase-note');
+    Route::patch('/orders/{order}/receive', [OrderController::class, 'receiveSupplierPurchase'])->name('orders.receive');
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
     Route::patch('/orders/{order}', [OrderController::class, 'updateStatus'])->name('orders.update-status');
 
@@ -67,8 +72,9 @@ Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->name('adm
 Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
     // Supplier manages their own products
     Route::resource('products', ProductController::class)->except(['show']);
+    Route::get('/notes', [OrderController::class, 'supplierNotesIndex'])->name('notes.index');
+    Route::patch('/orders/{order}/approve', [OrderController::class, 'approveSupplierPurchase'])->name('orders.approve');
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
-    Route::patch('/orders/{order}/supplier-note', [OrderController::class, 'updateSupplierNote'])->name('orders.update-note');
 });
 
 // ----------------------------------------------------------------------------------

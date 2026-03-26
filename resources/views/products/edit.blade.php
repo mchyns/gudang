@@ -66,11 +66,21 @@
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="block text-gray-700 text-sm font-bold mb-2">Stok Tersedia</label>
+                                    <label class="block text-gray-700 text-sm font-bold mb-2">Stok Supplier Tersedia</label>
                                     <input type="number" name="stock" value="{{ old('stock', $product->stock) }}" 
                                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline {{ auth()->user()->hasRole('admin') ? 'bg-gray-100 cursor-not-allowed' : '' }}"
                                         {{ auth()->user()->hasRole('admin') ? 'readonly' : '' }}>
+                                    @if(auth()->user()->hasRole('admin'))
+                                        <p class="text-xs text-gray-500 mt-1">Stok supplier hanya dapat diubah oleh supplier.</p>
+                                    @endif
                                 </div>
+
+                                @if(auth()->user()->hasRole('admin'))
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 text-sm font-bold mb-2">Stok Gudang Saat Ini</label>
+                                        <input type="number" value="{{ $product->warehouse_stock }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 cursor-not-allowed" readonly>
+                                    </div>
+                                @endif
                                 <div class="mb-4">
                                     <label class="block text-gray-700 text-sm font-bold mb-2">Deskripsi</label>
                                     <textarea name="description" 
