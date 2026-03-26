@@ -135,6 +135,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         @if(Auth::user()->role === 'admin' && $order->order_type === 'dapur_sale')
                                             <a href="{{ route('admin.orders.operational.edit', $order->id) }}" class="text-amber-600 hover:text-amber-800 text-xs mb-1 inline-block">Detail Proses</a><br>
+                                            <a href="{{ route('admin.orders.supplier-purchase.create', ['source_order_id' => $order->id]) }}" class="text-blue-600 hover:text-blue-800 text-xs mb-1 inline-block">Buat PO Supplier</a><br>
                                         @endif
                                         <a href="{{ route('admin.orders.invoice', $order->id) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-xs mb-1 inline-block">Cetak Nota</a>
 

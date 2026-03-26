@@ -29,6 +29,16 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function sourceDapurOrder()
+    {
+        return $this->belongsTo(self::class, 'source_dapur_order_id');
+    }
+
+    public function supplierPurchases()
+    {
+        return $this->hasMany(self::class, 'source_dapur_order_id');
+    }
+
     public function getOperationalTotalAttribute(): float
     {
         $extraTotal = collect($this->operational_extras ?? [])->sum(function ($extra) {

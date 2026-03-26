@@ -62,6 +62,28 @@ class OrderController extends Controller
         return view('orders.dapur_index', compact('orders'));
     }
 
+    public function dapurSalesNote(Order $order)
+    {
+        if (Auth::user()->role !== 'dapur') {
+            abort(403);
+        }
+
+        if ((int) $order->user_id !== (int) Auth::id() || $order->order_type !== 'dapur_sale') {
+            abort(403);
+        }
+
+        if ($order->status !== 'completed') {
+            return back()->with('error', 'Nota penjualan gudang tersedia setelah order selesai.');
+        }
+
+        $order->load(['user', 'orderItems.product.supplier']);
+
+        return view('orders.dapur_sales_note', [
+            'order' => $order,
+            'sellerName' => 'Gudang',
+        ]);
+    }
+
     public function supplierNotesIndex()
     {
         if (Auth::user()->role !== 'supplier') {
@@ -196,6 +218,20 @@ class OrderController extends Controller
             abort(403);
         }
 
+        $sourceOrder = null;
+        $suggestedQuantities = [];
+
+        if ($request->filled('source_order_id')) {
+            $sourceOrder = Order::with(['orderItems.product.category', 'user'])
+                ->where('order_type', 'dapur_sale')
+                ->findOrFail($request->integer('source_order_id'));
+
+            $suggestedQuantities = $sourceOrder->orderItems
+                ->groupBy('product_id')
+                ->map(fn($items) => (int) $items->sum('quantity'))
+                ->toArray();
+        }
+
         $suppliers = \App\Models\User::query()
             ->where('role', 'supplier')
             ->orderBy('name')
@@ -222,7 +258,13 @@ class OrderController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('orders.supplier_purchase_create', compact('products', 'suppliers', 'categories'));
+        if (!empty($suggestedQuantities)) {
+            $products = $products->sortByDesc(function ($product) use ($suggestedQuantities) {
+                return $suggestedQuantities[$product->id] ?? 0;
+            })->values();
+        }
+
+        return view('orders.supplier_purchase_create', compact('products', 'suppliers', 'categories', 'sourceOrder', 'suggestedQuantities'));
     }
 
     public function storeSupplierPurchase(Request $request)
@@ -236,14 +278,21 @@ class OrderController extends Controller
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
             'note' => 'nullable|string|max:1000',
+            'source_order_id' => 'nullable|exists:orders,id',
         ]);
 
         try {
             DB::beginTransaction();
 
+            $sourceOrder = null;
+            if (!empty($validated['source_order_id'])) {
+                $sourceOrder = Order::where('order_type', 'dapur_sale')->findOrFail((int) $validated['source_order_id']);
+            }
+
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'order_type' => 'supplier_purchase',
+                'source_dapur_order_id' => $sourceOrder?->id,
                 'total_price' => 0,
                 'status' => 'pending',
                 'shipping_status' => 'pending',
@@ -273,11 +322,22 @@ class OrderController extends Controller
 
             $order->update(['total_price' => $totalPrice]);
 
+            if ($sourceOrder && $sourceOrder->status === 'pending') {
+                $sourceOrder->update([
+                    'status' => 'processed',
+                    'shipping_status' => 'prepared',
+                ]);
+            }
+
             ActivityLogger::log(
                 'order.supplier_purchase_created',
                 'Gudang membuat pembelian supplier #' . $order->id,
                 $order,
-                ['total_items' => count($validated['items']), 'total_price' => $totalPrice]
+                [
+                    'total_items' => count($validated['items']),
+                    'total_price' => $totalPrice,
+                    'source_dapur_order_id' => $sourceOrder?->id,
+                ]
             );
 
             DB::commit();

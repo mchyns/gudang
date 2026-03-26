@@ -85,6 +85,7 @@ Route::middleware(['auth', 'role:dapur'])->prefix('dapur')->name('dapur.')->grou
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store'); // Create order (Checkout)
     Route::get('/orders', [OrderController::class, 'dapurIndex'])->name('orders.my_orders'); // View order history (changed name slightly to avoid conflict if any, but index is standard)
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
+    Route::get('/orders/{order}/sales-note', [OrderController::class, 'dapurSalesNote'])->name('orders.sales-note');
 });
 
 Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {

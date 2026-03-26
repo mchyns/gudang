@@ -12,6 +12,13 @@
                     </div>
                 @endif
 
+                @if(!empty($sourceOrder))
+                    <div class="mb-4 bg-blue-50 border border-blue-100 text-blue-800 px-4 py-3 rounded">
+                        Menyiapkan PO supplier dari order dapur <strong>#{{ $sourceOrder->id }}</strong> ({{ $sourceOrder->user->name ?? 'Mitra Dapur' }}).
+                        Admin bisa memilah dan menyesuaikan qty sebelum disimpan.
+                    </div>
+                @endif
+
                 <div class="mb-4 flex flex-wrap items-center justify-end gap-2">
                     <form method="GET" action="{{ route('admin.orders.supplier-purchase.invoice-daily') }}" target="_blank" class="flex items-center gap-2">
                         <input type="date" name="date" value="{{ now()->toDateString() }}" class="border-gray-300 rounded-md text-sm">
@@ -51,6 +58,10 @@
                 <form action="{{ route('admin.orders.supplier-purchase.store') }}" method="POST" id="supplierPurchaseForm">
                     @csrf
 
+                    @if(!empty($sourceOrder))
+                        <input type="hidden" name="source_order_id" value="{{ $sourceOrder->id }}">
+                    @endif
+
                     <div class="mb-5">
                         <label class="block text-sm text-gray-700 mb-1">Catatan Pembelian Gudang (Opsional)</label>
                         <textarea name="note" rows="2" class="w-full border-gray-300 rounded-md" placeholder="Contoh: Prioritas kirim pagi, pisahkan per supplier."></textarea>
@@ -76,7 +87,7 @@
                                     <div class="flex items-center justify-between gap-2">
                                         <label class="text-xs text-gray-500">Qty beli</label>
                                         <input type="hidden" name="items[{{ $loop->index }}][product_id]" value="{{ $product->id }}" disabled class="product-id-input">
-                                        <input type="number" min="0" name="items[{{ $loop->index }}][quantity]" class="w-24 border rounded px-2 py-1 text-right quantity-input" data-index="{{ $loop->index }}" placeholder="0">
+                                        <input type="number" min="0" name="items[{{ $loop->index }}][quantity]" value="{{ $suggestedQuantities[$product->id] ?? 0 }}" class="w-24 border rounded px-2 py-1 text-right quantity-input" data-index="{{ $loop->index }}" placeholder="0">
                                     </div>
                                 </div>
                             @endforeach
