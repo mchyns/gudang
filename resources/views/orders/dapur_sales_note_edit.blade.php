@@ -110,20 +110,22 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-gray-100">
-                        <button
-                            type="submit"
-                            class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold text-white {{ $isLocked ? 'bg-slate-300 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800' }}"
-                            @if($isLocked) disabled @endif
-                        >
-                            Simpan Draft Nota
-                        </button>
+                        @if($isLocked)
+                            <button type="submit" disabled class="inline-flex items-center rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed border border-gray-300">
+                                Simpan Draft Nota
+                            </button>
+                        @else
+                            <button type="submit" class="inline-flex items-center rounded-md bg-slate-700 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+                                Simpan Draft Nota
+                            </button>
+                        @endif
 
                         @if($isLocked)
                             <a href="{{ route('dapur.orders.sales-note.print', $order->id) }}" target="_blank" class="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
                                 Cetak Nota Final
                             </a>
                         @else
-                            <button type="button" disabled class="inline-flex items-center rounded-md bg-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700 cursor-not-allowed">
+                            <button type="button" disabled class="inline-flex items-center rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed border border-gray-300">
                                 Cetak Nota Final
                             </button>
                         @endif
@@ -140,13 +142,15 @@
                 <form action="{{ route('dapur.orders.sales-note.finalize', $order->id) }}" method="POST" onsubmit="return confirm('Yakin fix dan kunci nota ini? Data tidak bisa diubah lagi.');">
                     @csrf
                     @method('PATCH')
-                    <button
-                        type="submit"
-                        class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold text-white {{ $isLocked ? 'bg-amber-300 cursor-not-allowed' : 'bg-amber-500 hover:bg-amber-600' }}"
-                        @if($isLocked) disabled @endif
-                    >
-                        Fix dan Kunci Nota
-                    </button>
+                    @if($isLocked)
+                        <button type="submit" disabled class="inline-flex items-center rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed border border-gray-300">
+                            Fix dan Kunci Nota
+                        </button>
+                    @else
+                        <button type="submit" class="inline-flex items-center rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">
+                            Fix dan Kunci Nota
+                        </button>
+                    @endif
                 </form>
             </div>
         </div>
