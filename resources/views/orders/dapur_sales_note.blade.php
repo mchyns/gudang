@@ -73,10 +73,10 @@
     <div class="head-wrap">
         <div class="head-left">
             <img
-                src="{{ asset('images/logo-ud-trenggalek-jaya.png') }}"
+                src="{{ asset('images/logo-ud-trenggalek-hijau.png') }}"
                 alt="Logo UD Trenggalek Jaya"
                 class="brand-logo"
-                onerror="this.onerror=null;this.src='{{ asset('images/logo.png') }}';"
+                onerror="this.onerror=null;this.src='{{ asset('images/logo-ud-trenggalek-jaya.png') }}';"
             >
             <div>
                 <h1>UD. TREGGALEK JAYA</h1>
