@@ -105,8 +105,8 @@
                             </div>
 
                             <div>
-                                <label class="block text-xs text-gray-600 mb-1">Catatan Admin (opsional)</label>
-                                <input type="text" name="admin_note" value="{{ old('admin_note', $order->admin_note) }}" class="w-full border-gray-300 rounded-md text-sm" placeholder="Contoh: Kirim ulang via armada sore ini">
+                                <label class="block text-xs text-gray-600 mb-1">Catatan Admin untuk Nota Penjualan (opsional)</label>
+                                <input type="text" name="admin_note" value="{{ old('admin_note', $order->admin_note) }}" class="w-full border-gray-300 rounded-md text-sm" placeholder="Contoh: Transfer ke BRI xxxx / Kirim ulang via armada sore ini">
                             </div>
 
                             <div class="flex justify-end">
@@ -137,8 +137,8 @@
                             <p class="text-xs text-gray-500 mt-1">Dipakai untuk header nota pembelian dapur.</p>
                         </div>
                         <div>
-                            <label class="block text-sm text-gray-700 mb-1">Catatan Admin (Opsional)</label>
-                            <input type="text" name="admin_note" value="{{ old('admin_note', $order->admin_note) }}" class="w-full border-gray-300 rounded-md" placeholder="Catatan proses admin untuk order ini">
+                            <label class="block text-sm text-gray-700 mb-1">Catatan Admin untuk Nota Penjualan</label>
+                            <input type="text" name="admin_note" value="{{ old('admin_note', $order->admin_note) }}" class="w-full border-gray-300 rounded-md" placeholder="Contoh: Transfer ke BRI xxxx / Instruksi pengiriman">
                         </div>
                     </div>
 
