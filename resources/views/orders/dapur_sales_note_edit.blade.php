@@ -48,6 +48,7 @@
             </div>
 
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                @php $isLocked = !is_null($order->dapur_sales_note_locked_at); @endphp
                 <form action="{{ route('dapur.orders.sales-note.update', $order->id) }}" method="POST" class="p-5 space-y-5">
                     @csrf
                     @method('PATCH')
@@ -79,7 +80,7 @@
                                                 name="items[{{ $idx }}][final_quantity]"
                                                 value="{{ old("items.$idx.final_quantity", $item->dapur_final_quantity ?? $item->quantity) }}"
                                                 class="w-24 rounded-md border-gray-300 text-right text-sm"
-                                                @if($order->dapur_sales_note_locked_at) readonly @endif
+                                                @if($isLocked) readonly @endif
                                             >
                                         </td>
                                         <td class="px-3 py-3 align-top">
@@ -88,7 +89,7 @@
                                                 rows="2"
                                                 class="w-full rounded-md border-gray-300 text-sm"
                                                 placeholder="Contoh: 1 pcs rusak saat diterima"
-                                                @if($order->dapur_sales_note_locked_at) readonly @endif
+                                                @if($isLocked) readonly @endif
                                             >{{ old("items.$idx.item_note", $item->dapur_item_note) }}</textarea>
                                         </td>
                                     </tr>
@@ -104,21 +105,27 @@
                             rows="3"
                             class="w-full rounded-md border-gray-300 text-sm"
                             placeholder="Contoh: Terjadi susut karena proses sortir"
-                            @if($order->dapur_sales_note_locked_at) readonly @endif
+                            @if($isLocked) readonly @endif
                         >{{ old('dapur_adjustment_note', $order->dapur_adjustment_note) }}</textarea>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-gray-100">
-                        @if(!$order->dapur_sales_note_locked_at)
-                            <button type="submit" class="inline-flex items-center rounded-md bg-slate-700 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
-                                Simpan Draft Nota
-                            </button>
-                        @endif
+                        <button
+                            type="submit"
+                            class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold text-white {{ $isLocked ? 'bg-slate-300 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800' }}"
+                            @if($isLocked) disabled @endif
+                        >
+                            Simpan Draft Nota
+                        </button>
 
-                        @if($order->dapur_sales_note_locked_at)
+                        @if($isLocked)
                             <a href="{{ route('dapur.orders.sales-note.print', $order->id) }}" target="_blank" class="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
                                 Cetak Nota Final
                             </a>
+                        @else
+                            <button type="button" disabled class="inline-flex items-center rounded-md bg-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700 cursor-not-allowed">
+                                Cetak Nota Final
+                            </button>
                         @endif
 
                         <a href="{{ route('dapur.orders.my_orders') }}" class="inline-flex items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">
@@ -128,18 +135,20 @@
                 </form>
             </div>
 
-            @if(!$order->dapur_sales_note_locked_at)
-                <div class="bg-white border border-amber-200 rounded-xl shadow-sm p-5">
-                    <p class="text-sm text-amber-700 mb-3">Setelah dikunci, nota tidak bisa diubah lagi dan siap untuk dicetak.</p>
-                    <form action="{{ route('dapur.orders.sales-note.finalize', $order->id) }}" method="POST" onsubmit="return confirm('Yakin fix dan kunci nota ini? Data tidak bisa diubah lagi.');">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="inline-flex items-center rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">
-                            Fix dan Kunci Nota
-                        </button>
-                    </form>
-                </div>
-            @endif
+            <div class="bg-white border border-amber-200 rounded-xl shadow-sm p-5">
+                <p class="text-sm text-amber-700 mb-3">Setelah dikunci, nota tidak bisa diubah lagi dan siap untuk dicetak.</p>
+                <form action="{{ route('dapur.orders.sales-note.finalize', $order->id) }}" method="POST" onsubmit="return confirm('Yakin fix dan kunci nota ini? Data tidak bisa diubah lagi.');">
+                    @csrf
+                    @method('PATCH')
+                    <button
+                        type="submit"
+                        class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold text-white {{ $isLocked ? 'bg-amber-300 cursor-not-allowed' : 'bg-amber-500 hover:bg-amber-600' }}"
+                        @if($isLocked) disabled @endif
+                    >
+                        Fix dan Kunci Nota
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </x-app-layout>
