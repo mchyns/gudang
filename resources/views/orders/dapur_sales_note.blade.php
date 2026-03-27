@@ -72,7 +72,12 @@
 
     <div class="head-wrap">
         <div class="head-left">
-            <img src="{{ asset('images/' . rawurlencode('logo fix UD.Trenggalek Jaya.png')) }}" alt="Logo UD Treggalek Jaya" class="brand-logo">
+            <img
+                src="{{ asset('images/logo-ud-trenggalek-jaya.png') }}"
+                alt="Logo UD Trenggalek Jaya"
+                class="brand-logo"
+                onerror="this.onerror=null;this.src='{{ asset('images/logo.png') }}';"
+            >
             <div>
                 <h1>UD. TREGGALEK JAYA</h1>
                 <p>Melayani segala kebutuhan sembako dll</p>
