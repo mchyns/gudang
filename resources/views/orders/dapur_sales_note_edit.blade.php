@@ -111,26 +111,49 @@
 
                     <div class="flex flex-wrap items-center gap-3 pt-2 border-t border-gray-100">
                         @if($isLocked)
-                            <button type="submit" disabled class="inline-flex items-center rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed border border-gray-300">
+                            <button
+                                type="submit"
+                                disabled
+                                class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold cursor-not-allowed"
+                                style="background:#e5e7eb;color:#6b7280;border:1px solid #d1d5db;"
+                            >
                                 Simpan Draft Nota
                             </button>
                         @else
-                            <button type="submit" class="inline-flex items-center rounded-md bg-slate-700 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+                            <button
+                                type="submit"
+                                class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold"
+                                style="background:#334155;color:#ffffff;border:1px solid #334155;"
+                            >
                                 Simpan Draft Nota
                             </button>
                         @endif
 
                         @if($isLocked)
-                            <a href="{{ route('dapur.orders.sales-note.print', $order->id) }}" target="_blank" class="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+                            <a
+                                href="{{ route('dapur.orders.sales-note.print', $order->id) }}"
+                                target="_blank"
+                                class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold"
+                                style="background:#059669;color:#ffffff;border:1px solid #059669;text-decoration:none;"
+                            >
                                 Cetak Nota Final
                             </a>
                         @else
-                            <button type="button" disabled class="inline-flex items-center rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed border border-gray-300">
+                            <button
+                                type="button"
+                                disabled
+                                class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold cursor-not-allowed"
+                                style="background:#e5e7eb;color:#6b7280;border:1px solid #d1d5db;"
+                            >
                                 Cetak Nota Final
                             </button>
                         @endif
 
-                        <a href="{{ route('dapur.orders.my_orders') }}" class="inline-flex items-center rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200">
+                        <a
+                            href="{{ route('dapur.orders.my_orders') }}"
+                            class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold"
+                            style="background:#f3f4f6;color:#374151;border:1px solid #e5e7eb;text-decoration:none;"
+                        >
                             Kembali ke Riwayat
                         </a>
                     </div>
@@ -143,11 +166,20 @@
                     @csrf
                     @method('PATCH')
                     @if($isLocked)
-                        <button type="submit" disabled class="inline-flex items-center rounded-md bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed border border-gray-300">
+                        <button
+                            type="submit"
+                            disabled
+                            class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold cursor-not-allowed"
+                            style="background:#e5e7eb;color:#6b7280;border:1px solid #d1d5db;"
+                        >
                             Fix dan Kunci Nota
                         </button>
                     @else
-                        <button type="submit" class="inline-flex items-center rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">
+                        <button
+                            type="submit"
+                            class="inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold"
+                            style="background:#f59e0b;color:#ffffff;border:1px solid #f59e0b;"
+                        >
                             Fix dan Kunci Nota
                         </button>
                     @endif
